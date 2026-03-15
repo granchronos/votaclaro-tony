@@ -1,0 +1,194 @@
+[
+  {
+    "id": "ipsos_2026_02_20",
+    "empresa": "Ipsos Perú",
+    "metodologia": "Encuesta urbano-rural",
+    "muestreo": 1300,
+    "margenError": 2.7,
+    "fechaPublicacion": "2026-02-20",
+    "urlFuente": "https://peru21.pe/politica/encuesta-ipsos-lopez-aliaga-cae-en-la-intencion-de-voto-tras-censura-jeri-y-designacion-de-balcazar/",
+    "esCertificada": true,
+    "resultados": [
+      {"candidatoId": "lopez_aliaga", "nombreCandidato": "Rafael López Aliaga", "partido": "Renovación Popular", "porcentaje": 10.0},
+      {"candidatoId": "fujimori", "nombreCandidato": "Keiko Fujimori", "partido": "Fuerza Popular", "porcentaje": 9.0},
+      {"candidatoId": "lopez_chau", "nombreCandidato": "Alfonso López-Chau", "partido": "Ahora Nación", "porcentaje": 4.0},
+      {"candidatoId": "acuna", "nombreCandidato": "César Acuña", "partido": "Alianza para el Progreso", "porcentaje": 4.0},
+      {"candidatoId": "alvarez", "nombreCandidato": "Carlos Álvarez", "partido": "País para Todos", "porcentaje": 3.0},
+      {"candidatoId": "forsyth", "nombreCandidato": "George Forsyth", "partido": "Somos Perú", "porcentaje": 3.0},
+      {"candidatoId": "vizcarra", "nombreCandidato": "Mario Vizcarra", "partido": "Perú Primero", "porcentaje": 2.0},
+      {"candidatoId": "belmont", "nombreCandidato": "Ricardo Belmont", "partido": "Partido Cívico OBRAS", "porcentaje": 2.0},
+      {"candidatoId": "luna", "nombreCandidato": "José Luna Gálvez", "partido": "Podemos Perú", "porcentaje": 2.0}
+    ]
+  },
+  {
+    "id": "cpi_2026_02_18",
+    "empresa": "CPI",
+    "metodologia": "Encuesta urbano-rural",
+    "muestreo": 1300,
+    "margenError": 2.7,
+    "fechaPublicacion": "2026-02-18",
+    "urlFuente": "https://cpi.pe/wp-content/uploads/2026/02/FEBRERO-INFORME-OPINION-PUBLICA.pdf",
+    "esCertificada": true,
+    "resultados": [
+      {"candidatoId": "lopez_aliaga", "nombreCandidato": "Rafael López Aliaga", "partido": "Renovación Popular", "porcentaje": 13.9},
+      {"candidatoId": "fujimori", "nombreCandidato": "Keiko Fujimori", "partido": "Fuerza Popular", "porcentaje": 7.0},
+      {"candidatoId": "lopez_chau", "nombreCandidato": "Alfonso López-Chau", "partido": "Ahora Nación", "porcentaje": 5.1},
+      {"candidatoId": "acuna", "nombreCandidato": "César Acuña", "partido": "Alianza para el Progreso", "porcentaje": 4.4},
+      {"candidatoId": "alvarez", "nombreCandidato": "Carlos Álvarez", "partido": "País para Todos", "porcentaje": 4.0},
+      {"candidatoId": "vizcarra", "nombreCandidato": "Mario Vizcarra", "partido": "Perú Primero", "porcentaje": 3.2},
+      {"candidatoId": "luna", "nombreCandidato": "José Luna Gálvez", "partido": "Podemos Perú", "porcentaje": 3.0},
+      {"candidatoId": "lescano", "nombreCandidato": "Yonhy Lescano", "partido": "Cooperación Popular", "porcentaje": 2.2},
+      {"candidatoId": "forsyth", "nombreCandidato": "George Forsyth", "partido": "Somos Perú", "porcentaje": 1.9},
+      {"candidatoId": "belmont", "nombreCandidato": "Ricardo Belmont", "partido": "Partido Cívico OBRAS", "porcentaje": 1.4}
+    ]
+  },
+  {
+    "id": "cpi_2026_02_02",
+    "empresa": "CPI",
+    "metodologia": "Encuesta urbano-rural",
+    "muestreo": 1200,
+    "margenError": 2.8,
+    "fechaPublicacion": "2026-02-02",
+    "urlFuente": "https://cpi.pe/images/upload/paginaweb/archivo/23/ENERO%202%20-%20INFORME%20OPINI%C3%93N%20P%C3%9ABLICA.pdf",
+    "esCertificada": true,
+    "resultados": [
+      {"candidatoId": "lopez_aliaga", "nombreCandidato": "Rafael López Aliaga", "partido": "Renovación Popular", "porcentaje": 14.6},
+      {"candidatoId": "fujimori", "nombreCandidato": "Keiko Fujimori", "partido": "Fuerza Popular", "porcentaje": 6.6},
+      {"candidatoId": "vizcarra", "nombreCandidato": "Mario Vizcarra", "partido": "Perú Primero", "porcentaje": 4.7},
+      {"candidatoId": "acuna", "nombreCandidato": "César Acuña", "partido": "Alianza para el Progreso", "porcentaje": 3.9},
+      {"candidatoId": "alvarez", "nombreCandidato": "Carlos Álvarez", "partido": "País para Todos", "porcentaje": 3.7},
+      {"candidatoId": "lopez_chau", "nombreCandidato": "Alfonso López-Chau", "partido": "Ahora Nación", "porcentaje": 3.6},
+      {"candidatoId": "luna", "nombreCandidato": "José Luna Gálvez", "partido": "Podemos Perú", "porcentaje": 2.9},
+      {"candidatoId": "lescano", "nombreCandidato": "Yonhy Lescano", "partido": "Cooperación Popular", "porcentaje": 1.8},
+      {"candidatoId": "forsyth", "nombreCandidato": "George Forsyth", "partido": "Somos Perú", "porcentaje": 1.8},
+      {"candidatoId": "belmont", "nombreCandidato": "Ricardo Belmont", "partido": "Partido Cívico OBRAS", "porcentaje": 1.5}
+    ]
+  },
+  {
+    "id": "iep_2026_01_26",
+    "empresa": "IEP",
+    "metodologia": "Encuesta nacional urbano-rural",
+    "muestreo": 1211,
+    "margenError": 2.8,
+    "fechaPublicacion": "2026-01-26",
+    "urlFuente": "https://larepublica.pe/politica",
+    "esCertificada": true,
+    "resultados": [
+      {"candidatoId": "lopez_aliaga", "nombreCandidato": "Rafael López Aliaga", "partido": "Renovación Popular", "porcentaje": 14.7},
+      {"candidatoId": "fujimori", "nombreCandidato": "Keiko Fujimori", "partido": "Fuerza Popular", "porcentaje": 8.1},
+      {"candidatoId": "vizcarra", "nombreCandidato": "Mario Vizcarra", "partido": "Perú Primero", "porcentaje": 4.4},
+      {"candidatoId": "acuna", "nombreCandidato": "César Acuña", "partido": "Alianza para el Progreso", "porcentaje": 4.0},
+      {"candidatoId": "lopez_chau", "nombreCandidato": "Alfonso López-Chau", "partido": "Ahora Nación", "porcentaje": 4.0},
+      {"candidatoId": "lescano", "nombreCandidato": "Yonhy Lescano", "partido": "Cooperación Popular", "porcentaje": 3.2},
+      {"candidatoId": "belmont", "nombreCandidato": "Ricardo Belmont", "partido": "Partido Cívico OBRAS", "porcentaje": 2.4},
+      {"candidatoId": "forsyth", "nombreCandidato": "George Forsyth", "partido": "Somos Perú", "porcentaje": 1.9},
+      {"candidatoId": "alvarez", "nombreCandidato": "Carlos Álvarez", "partido": "País para Todos", "porcentaje": 1.4},
+      {"candidatoId": "luna", "nombreCandidato": "José Luna Gálvez", "partido": "Podemos Perú", "porcentaje": 1.4}
+    ]
+  },
+  {
+    "id": "datum_2026_01_21",
+    "empresa": "Datum",
+    "metodologia": "Encuesta nacional urbano-rural",
+    "muestreo": 1202,
+    "margenError": 2.8,
+    "fechaPublicacion": "2026-01-21",
+    "urlFuente": "https://www.americatv.com.pe",
+    "esCertificada": true,
+    "resultados": [
+      {"candidatoId": "lopez_aliaga", "nombreCandidato": "Rafael López Aliaga", "partido": "Renovación Popular", "porcentaje": 11.7},
+      {"candidatoId": "fujimori", "nombreCandidato": "Keiko Fujimori", "partido": "Fuerza Popular", "porcentaje": 8.0},
+      {"candidatoId": "acuna", "nombreCandidato": "César Acuña", "partido": "Alianza para el Progreso", "porcentaje": 5.7},
+      {"candidatoId": "lopez_chau", "nombreCandidato": "Alfonso López-Chau", "partido": "Ahora Nación", "porcentaje": 4.6},
+      {"candidatoId": "alvarez", "nombreCandidato": "Carlos Álvarez", "partido": "País para Todos", "porcentaje": 3.6},
+      {"candidatoId": "vizcarra", "nombreCandidato": "Mario Vizcarra", "partido": "Perú Primero", "porcentaje": 3.0},
+      {"candidatoId": "lescano", "nombreCandidato": "Yonhy Lescano", "partido": "Cooperación Popular", "porcentaje": 3.0},
+      {"candidatoId": "forsyth", "nombreCandidato": "George Forsyth", "partido": "Somos Perú", "porcentaje": 2.5},
+      {"candidatoId": "luna", "nombreCandidato": "José Luna Gálvez", "partido": "Podemos Perú", "porcentaje": 1.6},
+      {"candidatoId": "belmont", "nombreCandidato": "Ricardo Belmont", "partido": "Partido Cívico OBRAS", "porcentaje": 1.5}
+    ]
+  },
+  {
+    "id": "cit_2026_01_20",
+    "empresa": "CIT",
+    "metodologia": "Encuesta nacional",
+    "muestreo": 1220,
+    "margenError": 2.8,
+    "fechaPublicacion": "2026-01-20",
+    "urlFuente": "https://www.cit.pe",
+    "esCertificada": true,
+    "resultados": [
+      {"candidatoId": "lopez_aliaga", "nombreCandidato": "Rafael López Aliaga", "partido": "Renovación Popular", "porcentaje": 15.1},
+      {"candidatoId": "fujimori", "nombreCandidato": "Keiko Fujimori", "partido": "Fuerza Popular", "porcentaje": 9.3},
+      {"candidatoId": "acuna", "nombreCandidato": "César Acuña", "partido": "Alianza para el Progreso", "porcentaje": 6.6},
+      {"candidatoId": "alvarez", "nombreCandidato": "Carlos Álvarez", "partido": "País para Todos", "porcentaje": 6.0},
+      {"candidatoId": "lopez_chau", "nombreCandidato": "Alfonso López-Chau", "partido": "Ahora Nación", "porcentaje": 4.8},
+      {"candidatoId": "lescano", "nombreCandidato": "Yonhy Lescano", "partido": "Cooperación Popular", "porcentaje": 3.0},
+      {"candidatoId": "vizcarra", "nombreCandidato": "Mario Vizcarra", "partido": "Perú Primero", "porcentaje": 2.5},
+      {"candidatoId": "luna", "nombreCandidato": "José Luna Gálvez", "partido": "Podemos Perú", "porcentaje": 1.9},
+      {"candidatoId": "forsyth", "nombreCandidato": "George Forsyth", "partido": "Somos Perú", "porcentaje": 1.0}
+    ]
+  },
+  {
+    "id": "cpi_2026_01_16",
+    "empresa": "CPI",
+    "metodologia": "Encuesta urbano-rural",
+    "muestreo": 1200,
+    "margenError": 2.8,
+    "fechaPublicacion": "2026-01-16",
+    "urlFuente": "https://cpi.pe",
+    "esCertificada": true,
+    "resultados": [
+      {"candidatoId": "lopez_aliaga", "nombreCandidato": "Rafael López Aliaga", "partido": "Renovación Popular", "porcentaje": 13.6},
+      {"candidatoId": "fujimori", "nombreCandidato": "Keiko Fujimori", "partido": "Fuerza Popular", "porcentaje": 7.1},
+      {"candidatoId": "vizcarra", "nombreCandidato": "Mario Vizcarra", "partido": "Perú Primero", "porcentaje": 4.4},
+      {"candidatoId": "acuna", "nombreCandidato": "César Acuña", "partido": "Alianza para el Progreso", "porcentaje": 3.9},
+      {"candidatoId": "alvarez", "nombreCandidato": "Carlos Álvarez", "partido": "País para Todos", "porcentaje": 3.7},
+      {"candidatoId": "lopez_chau", "nombreCandidato": "Alfonso López-Chau", "partido": "Ahora Nación", "porcentaje": 3.1},
+      {"candidatoId": "luna", "nombreCandidato": "José Luna Gálvez", "partido": "Podemos Perú", "porcentaje": 2.8},
+      {"candidatoId": "lescano", "nombreCandidato": "Yonhy Lescano", "partido": "Cooperación Popular", "porcentaje": 1.8}
+    ]
+  },
+  {
+    "id": "ipsos_2026_01_08",
+    "empresa": "Ipsos Perú",
+    "metodologia": "Encuesta urbano-rural",
+    "muestreo": 1207,
+    "margenError": 2.8,
+    "fechaPublicacion": "2026-01-08",
+    "urlFuente": "https://peru21.pe/politica",
+    "esCertificada": true,
+    "resultados": [
+      {"candidatoId": "lopez_aliaga", "nombreCandidato": "Rafael López Aliaga", "partido": "Renovación Popular", "porcentaje": 10.0},
+      {"candidatoId": "fujimori", "nombreCandidato": "Keiko Fujimori", "partido": "Fuerza Popular", "porcentaje": 7.0},
+      {"candidatoId": "acuna", "nombreCandidato": "César Acuña", "partido": "Alianza para el Progreso", "porcentaje": 4.0},
+      {"candidatoId": "vizcarra", "nombreCandidato": "Mario Vizcarra", "partido": "Perú Primero", "porcentaje": 3.0},
+      {"candidatoId": "lopez_chau", "nombreCandidato": "Alfonso López-Chau", "partido": "Ahora Nación", "porcentaje": 3.0},
+      {"candidatoId": "lescano", "nombreCandidato": "Yonhy Lescano", "partido": "Cooperación Popular", "porcentaje": 3.0},
+      {"candidatoId": "alvarez", "nombreCandidato": "Carlos Álvarez", "partido": "País para Todos", "porcentaje": 2.0},
+      {"candidatoId": "luna", "nombreCandidato": "José Luna Gálvez", "partido": "Podemos Perú", "porcentaje": 2.0}
+    ]
+  },
+  {
+    "id": "datum_2026_01_06",
+    "empresa": "Datum",
+    "metodologia": "Encuesta nacional urbano-rural",
+    "muestreo": 1200,
+    "margenError": 2.8,
+    "fechaPublicacion": "2026-01-06",
+    "urlFuente": "https://elcomercio.pe/politica",
+    "esCertificada": true,
+    "resultados": [
+      {"candidatoId": "lopez_aliaga", "nombreCandidato": "Rafael López Aliaga", "partido": "Renovación Popular", "porcentaje": 12.0},
+      {"candidatoId": "fujimori", "nombreCandidato": "Keiko Fujimori", "partido": "Fuerza Popular", "porcentaje": 8.8},
+      {"candidatoId": "acuna", "nombreCandidato": "César Acuña", "partido": "Alianza para el Progreso", "porcentaje": 6.2},
+      {"candidatoId": "vizcarra", "nombreCandidato": "Mario Vizcarra", "partido": "Perú Primero", "porcentaje": 5.8},
+      {"candidatoId": "lopez_chau", "nombreCandidato": "Alfonso López-Chau", "partido": "Ahora Nación", "porcentaje": 3.8},
+      {"candidatoId": "lescano", "nombreCandidato": "Yonhy Lescano", "partido": "Cooperación Popular", "porcentaje": 2.8},
+      {"candidatoId": "alvarez", "nombreCandidato": "Carlos Álvarez", "partido": "País para Todos", "porcentaje": 2.5},
+      {"candidatoId": "belmont", "nombreCandidato": "Ricardo Belmont", "partido": "Partido Cívico OBRAS", "porcentaje": 2.2},
+      {"candidatoId": "luna", "nombreCandidato": "José Luna Gálvez", "partido": "Podemos Perú", "porcentaje": 1.0},
+      {"candidatoId": "forsyth", "nombreCandidato": "George Forsyth", "partido": "Somos Perú", "porcentaje": 1.0}
+    ]
+  }
+]

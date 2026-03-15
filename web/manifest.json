@@ -1,0 +1,35 @@
+{
+    "name": "VotaClaro — Elecciones Perú 2026",
+    "short_name": "VotaClaro",
+    "start_url": ".",
+    "display": "standalone",
+    "background_color": "#0a0a1a",
+    "theme_color": "#C62828",
+    "description": "Tu voto, bien informado. Datos verificados del JNE, ONPE, Datum e Ipsos. Sin sesgos. Sin publicidad partidaria.",
+    "orientation": "portrait-primary",
+    "prefer_related_applications": false,
+    "icons": [
+        {
+            "src": "icons/Icon-192.png",
+            "sizes": "192x192",
+            "type": "image/png"
+        },
+        {
+            "src": "icons/Icon-512.png",
+            "sizes": "512x512",
+            "type": "image/png"
+        },
+        {
+            "src": "icons/Icon-maskable-192.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "maskable"
+        },
+        {
+            "src": "icons/Icon-maskable-512.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "maskable"
+        }
+    ]
+}
