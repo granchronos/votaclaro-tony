@@ -52,6 +52,8 @@ serve(async (req) => {
       'elcomercio.pe',
       'chequeado.com',
       'gist.githubusercontent.com',
+      'peru21.pe',
+      'ipsos.com',
     ]
     if (!allowed.some((d) => parsed.hostname === d || parsed.hostname.endsWith('.' + d))) {
       return new Response(

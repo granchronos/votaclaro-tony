@@ -738,8 +738,8 @@ final miVotoProvider =
 /// formato JSON y las instrucciones de actualización.
 /// Se refresca automáticamente cada 30 minutos para mantener datos al día.
 final encuestasProvider = FutureProvider<List<Encuesta>>((ref) async {
-  // Auto-refresh cada 30 minutos durante sesiones largas
-  final timer = Timer(const Duration(minutes: 30), ref.invalidateSelf);
+  // Auto-refresh cada 15 minutos — siempre trae lo último de Peru21/Ipsos
+  final timer = Timer(const Duration(minutes: 15), ref.invalidateSelf);
   ref.onDispose(timer.cancel);
 
   final service = ref.read(encuestasRemoteServiceProvider);

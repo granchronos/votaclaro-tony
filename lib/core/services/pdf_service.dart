@@ -64,9 +64,16 @@ class PdfService {
         // Quitar secuencias de puntuación sin sentido (ej: ...., ----, ====)
         .replaceAll(RegExp(r'[.\-=_]{4,}'), '')
         // Quitar números de página sueltos (ej: "12", "Página 3")
-        .replaceAll(RegExp(r'(?:^|\n)\s*(?:Página\s*)?\d{1,3}\s*(?:\n|$)', caseSensitive: false), '\n')
+        .replaceAll(
+            RegExp(r'(?:^|\n)\s*(?:Página\s*)?\d{1,3}\s*(?:\n|$)',
+                caseSensitive: false),
+            '\n')
         // Quitar headers/footers repetitivos de JNE
-        .replaceAll(RegExp(r'(?:JURADO\s+NACIONAL\s+DE\s+ELECCIONES|PLAN\s+DE\s+GOBIERNO|REGISTRO\s+DE\s+ORGANIZACIONES\s+POL[IÍ]TICAS)', caseSensitive: false), '')
+        .replaceAll(
+            RegExp(
+                r'(?:JURADO\s+NACIONAL\s+DE\s+ELECCIONES|PLAN\s+DE\s+GOBIERNO|REGISTRO\s+DE\s+ORGANIZACIONES\s+POL[IÍ]TICAS)',
+                caseSensitive: false),
+            '')
         // Quitar cadenas de un solo carácter repetido con espacios (ej: "Q Q Q Q")
         .replaceAll(RegExp(r'(?:\w\s){5,}'), ' ')
         // Normalizar espacios
@@ -81,7 +88,8 @@ class PdfService {
       final trimmed = line.trim();
       if (trimmed.length < 10) return false;
       // Quitar líneas que son mayormente números/puntuación
-      final alphaCount = trimmed.replaceAll(RegExp(r'[^a-záéíóúñA-ZÁÉÍÓÚÑ]'), '').length;
+      final alphaCount =
+          trimmed.replaceAll(RegExp(r'[^a-záéíóúñA-ZÁÉÍÓÚÑ]'), '').length;
       return alphaCount > trimmed.length * 0.4; // Al menos 40% letras
     }).toList();
     clean = goodLines.join('\n');
@@ -138,7 +146,8 @@ class PdfService {
         if (content.length > 800) {
           // Cortar en el último punto antes de 800 chars
           final cutIdx = content.lastIndexOf('.', 800);
-          content = '${content.substring(0, cutIdx > 400 ? cutIdx + 1 : 800)}...';
+          content =
+              '${content.substring(0, cutIdx > 400 ? cutIdx + 1 : 800)}...';
         }
         if (content.length >= 30) {
           sections[entry.key] = content;

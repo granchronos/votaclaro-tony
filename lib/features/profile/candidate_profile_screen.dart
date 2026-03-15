@@ -596,8 +596,7 @@ class _PlanGobiernoPdfSection extends ConsumerWidget {
                 final longitudTotal = parsed['longitudTotal'] as int? ?? 0;
 
                 // Si no hay contenido útil, mostrar mensaje limpio
-                if (parsed.containsKey('error') ||
-                    resumen.length < 30) {
+                if (parsed.containsKey('error') || resumen.length < 30) {
                   return Container(
                     padding: const EdgeInsets.all(12),
                     margin: const EdgeInsets.only(bottom: 12),
@@ -706,7 +705,8 @@ class _PlanGobiernoPdfSection extends ConsumerWidget {
                               Row(
                                 children: [
                                   Icon(
-                                    iconMap[entry.key] ?? Icons.article_outlined,
+                                    iconMap[entry.key] ??
+                                        Icons.article_outlined,
                                     size: 14,
                                     color: AppColors.primary,
                                   ),
