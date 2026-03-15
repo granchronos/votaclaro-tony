@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -239,12 +240,14 @@ class CandidatoCard extends StatelessWidget {
                 ),
                 child: fotoUrl != null
                     ? ClipOval(
-                        child: Image.network(
-                          fotoUrl,
+                        child: CachedNetworkImage(
+                          imageUrl: fotoUrl,
                           width: 48,
                           height: 48,
                           fit: BoxFit.cover,
-                          errorBuilder: (_, __, ___) => const Icon(Icons.person,
+                          placeholder: (_, __) => const Icon(Icons.person,
+                              size: 22, color: AppColors.textSecondary),
+                          errorWidget: (_, __, ___) => const Icon(Icons.person,
                               size: 22, color: AppColors.textSecondary),
                         ),
                       )

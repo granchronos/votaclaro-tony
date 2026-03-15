@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -267,11 +268,14 @@ class _HeaderBackground extends StatelessWidget {
               ),
               child: fotoUrl != null && fotoUrl!.isNotEmpty
                   ? ClipOval(
-                      child: Image.network(fotoUrl!,
+                      child: CachedNetworkImage(
+                          imageUrl: fotoUrl!,
                           fit: BoxFit.cover,
                           width: 72,
                           height: 72,
-                          errorBuilder: (_, __, ___) => const Icon(Icons.person,
+                          placeholder: (_, __) => const Icon(Icons.person,
+                              size: 40, color: AppColors.textSecondary),
+                          errorWidget: (_, __, ___) => const Icon(Icons.person,
                               size: 40, color: AppColors.textSecondary)),
                     )
                   : const Icon(Icons.person,
@@ -419,12 +423,17 @@ class _FormulaPresidencialSection extends StatelessWidget {
                           ),
                           child: foto != null && foto.isNotEmpty
                               ? ClipOval(
-                                  child: Image.network(
-                                    foto,
+                                  child: CachedNetworkImage(
+                                    imageUrl: foto,
                                     fit: BoxFit.cover,
                                     width: isPresidente ? 68 : 56,
                                     height: isPresidente ? 68 : 56,
-                                    errorBuilder: (_, __, ___) => Icon(
+                                    placeholder: (_, __) => Icon(
+                                      Icons.person,
+                                      size: isPresidente ? 32 : 24,
+                                      color: AppColors.textSecondary,
+                                    ),
+                                    errorWidget: (_, __, ___) => Icon(
                                       Icons.person,
                                       size: isPresidente ? 32 : 24,
                                       color: AppColors.textSecondary,
@@ -504,8 +513,8 @@ class _PlanGobiernoPdfSection extends ConsumerWidget {
 
     if (rutaCompleto.isEmpty && rutaResumen.isEmpty) return const SizedBox();
 
-    // Intentar parsear el PDF de resumen (más liviano)
-    final pdfUrl = rutaResumen.isNotEmpty ? rutaResumen : rutaCompleto;
+    // Parsear el PDF completo (versión completa preferida)
+    final pdfUrl = rutaCompleto.isNotEmpty ? rutaCompleto : rutaResumen;
     final parsedAsync = ref.watch(parsedPdfProvider(pdfUrl));
 
     return Card(
@@ -732,16 +741,6 @@ class _PlanGobiernoPdfSection extends ConsumerWidget {
             ),
 
             // Botones de descarga
-            if (rutaResumen.isNotEmpty)
-              _PdfButton(
-                icon: Icons.summarize_outlined,
-                label: 'Descargar Plan Resumen',
-                description: 'PDF versión resumida',
-                color: AppColors.primary,
-                onTap: () => _openPdf(rutaResumen),
-              ),
-            if (rutaResumen.isNotEmpty && rutaCompleto.isNotEmpty)
-              const SizedBox(height: 10),
             if (rutaCompleto.isNotEmpty)
               _PdfButton(
                 icon: Icons.description_outlined,
@@ -749,6 +748,16 @@ class _PlanGobiernoPdfSection extends ConsumerWidget {
                 description: 'PDF versión completa',
                 color: AppColors.accent,
                 onTap: () => _openPdf(rutaCompleto),
+              ),
+            if (rutaResumen.isNotEmpty && rutaCompleto.isNotEmpty)
+              const SizedBox(height: 10),
+            if (rutaResumen.isNotEmpty)
+              _PdfButton(
+                icon: Icons.summarize_outlined,
+                label: 'Descargar Plan Resumen',
+                description: 'PDF versión resumida',
+                color: AppColors.primary,
+                onTap: () => _openPdf(rutaResumen),
               ),
             const SizedBox(height: 8),
             const Text(
@@ -1280,8 +1289,7 @@ class _CollapsibleDimensionState extends State<_CollapsibleDimension> {
               decoration: BoxDecoration(
                 color: AppColors.surfaceVariant,
                 borderRadius: BorderRadius.circular(10),
-                border:
-                    Border(left: BorderSide(color: widget.color, width: 3)),
+                border: Border(left: BorderSide(color: widget.color, width: 3)),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -1998,8 +2006,7 @@ class _AnalisisElectoralSection extends ConsumerWidget {
           aiAsync.when(
             loading: () => Container(
               margin: const EdgeInsets.only(top: 4),
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
               decoration: BoxDecoration(
                 color: AppColors.primary.withOpacity(0.05),
                 borderRadius: BorderRadius.circular(10),
@@ -2014,8 +2021,8 @@ class _AnalisisElectoralSection extends ConsumerWidget {
                   SizedBox(width: 10),
                   Text(
                     'Generando análisis IA...',
-                    style: TextStyle(
-                        fontSize: 12, color: AppColors.textSecondary),
+                    style:
+                        TextStyle(fontSize: 12, color: AppColors.textSecondary),
                   ),
                 ],
               ),
@@ -2023,10 +2030,8 @@ class _AnalisisElectoralSection extends ConsumerWidget {
             error: (_, __) => const SizedBox.shrink(),
             data: (ai) {
               if (ai.isEmpty) return const SizedBox.shrink();
-              final pros =
-                  (ai['pros'] as List?)?.cast<String>() ?? [];
-              final contras =
-                  (ai['contras'] as List?)?.cast<String>() ?? [];
+              final pros = (ai['pros'] as List?)?.cast<String>() ?? [];
+              final contras = (ai['contras'] as List?)?.cast<String>() ?? [];
               final analisis =
                   ai['analisisPredictivo'] as Map<String, dynamic>?;
               if (pros.isEmpty && contras.isEmpty && analisis == null) {
@@ -2053,8 +2058,7 @@ class _AnalisisElectoralSection extends ConsumerWidget {
                           child: Row(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Text('🟢 ',
-                                  style: TextStyle(fontSize: 12)),
+                              const Text('🟢 ', style: TextStyle(fontSize: 12)),
                               Expanded(
                                   child: Text(p,
                                       style: const TextStyle(
@@ -2081,8 +2085,7 @@ class _AnalisisElectoralSection extends ConsumerWidget {
                           child: Row(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Text('🔴 ',
-                                  style: TextStyle(fontSize: 12)),
+                              const Text('🔴 ', style: TextStyle(fontSize: 12)),
                               Expanded(
                                   child: Text(c,
                                       style: const TextStyle(
@@ -2120,8 +2123,7 @@ class _AnalisisElectoralSection extends ConsumerWidget {
                           if (analisis['probabilidadCumplimiento'] != null)
                             Text(
                               'Probabilidad de cumplimiento: ${analisis['probabilidadCumplimiento']}%',
-                              style: const TextStyle(
-                                  fontSize: 12, height: 1.4),
+                              style: const TextStyle(fontSize: 12, height: 1.4),
                             ),
                           if (analisis['justificacionRiesgo'] != null &&
                               (analisis['justificacionRiesgo'] as String)
@@ -2395,8 +2397,8 @@ class _ResumenAnaliticoSection extends StatelessWidget {
 
   // ── Helpers de cálculo ──
 
-  _RiesgoData _calcRiesgo(
-      int sentPen, int sentObl, int renuncias, int totalProps, double patrimonio) {
+  _RiesgoData _calcRiesgo(int sentPen, int sentObl, int renuncias,
+      int totalProps, double patrimonio) {
     int score = 0;
     final razones = <String>[];
 
@@ -2429,7 +2431,8 @@ class _ResumenAnaliticoSection extends StatelessWidget {
       if (patrimonio > 5000000) {
         // >5M soles — patrimonio muy alto, mayor exposición
         score += 1;
-        razones.add('Patrimonio declarado elevado (S/ ${_fmtPatrimonio(patrimonio)}) — mayor exposición a conflictos de interés');
+        razones.add(
+            'Patrimonio declarado elevado (S/ ${_fmtPatrimonio(patrimonio)}) — mayor exposición a conflictos de interés');
       }
       // Patrimonio normal o bajo no suma riesgo
     } else if (totalProps > 0) {

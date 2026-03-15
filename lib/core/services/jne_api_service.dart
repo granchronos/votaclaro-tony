@@ -2,6 +2,8 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:http/http.dart' as http;
 
+import 'cors_proxy.dart';
+
 /// Servicio para consultar la API oficial de Voto Informado del JNE.
 ///
 /// Fuente: https://votoinformado.jne.gob.pe
@@ -13,7 +15,7 @@ class JneApiService {
       'https://apiplataformaelectoral3.jne.gob.pe/api/v1/candidato';
   static const String _baseIA =
       'https://votoinformadoia.jne.gob.pe/ServiciosWeb/api/v1';
-  static const String _corsProxy = 'https://api.allorigins.win/raw?url=';
+
   static const String _imageBase = 'https://mpesije.jne.gob.pe/apidocs/';
 
   static const int _idProceso = 124; // Elecciones Generales 2026
@@ -238,9 +240,10 @@ class JneApiService {
   // ── URLs directas ──────────────────────────────────────────────────────
 
   /// URL de la foto del candidato en el servidor del JNE.
+  /// En web se proxea a través de la Edge Function para evitar CORS.
   static String fotoUrl(String? guidFoto) {
     if (guidFoto == null || guidFoto.isEmpty) return '';
-    return '$_imageBase$guidFoto';
+    return CorsProxy.imageUrl('$_imageBase$guidFoto');
   }
 
   // ── Utilitarios privados ───────────────────────────────────────────────
@@ -301,23 +304,21 @@ class JneApiService {
     return [];
   }
 
-  Uri _resolveUri(String url) {
-    if (kIsWeb) {
-      return Uri.parse('$_corsProxy${Uri.encodeComponent(url)}');
-    }
-    return Uri.parse(url);
-  }
-
   Future<Map<String, dynamic>> _post(
       String url, Map<String, dynamic> body) async {
     try {
-      final res = await http
-          .post(
-            _resolveUri(url),
-            headers: {'Content-Type': 'application/json'},
-            body: jsonEncode(body),
-          )
-          .timeout(const Duration(seconds: 15));
+      final headers = {'Content-Type': 'application/json'};
+      final uri = Uri.parse(url);
+      final http.Response res;
+      if (kIsWeb) {
+        res =
+            await CorsProxy.post(uri, headers: headers, body: jsonEncode(body))
+                .timeout(const Duration(seconds: 15));
+      } else {
+        res = await http
+            .post(uri, headers: headers, body: jsonEncode(body))
+            .timeout(const Duration(seconds: 15));
+      }
       if (res.statusCode != 200) return {};
       final decoded = jsonDecode(utf8.decode(res.bodyBytes));
       return decoded is Map<String, dynamic> ? decoded : {};
@@ -328,10 +329,17 @@ class JneApiService {
 
   Future<Map<String, dynamic>> _get(String url) async {
     try {
-      final res = await http.get(
-        _resolveUri(url),
-        headers: {'Accept': 'application/json'},
-      ).timeout(const Duration(seconds: 15));
+      final headers = {'Accept': 'application/json'};
+      final uri = Uri.parse(url);
+      final http.Response res;
+      if (kIsWeb) {
+        res = await CorsProxy.get(uri, headers: headers)
+            .timeout(const Duration(seconds: 15));
+      } else {
+        res = await http
+            .get(uri, headers: headers)
+            .timeout(const Duration(seconds: 15));
+      }
       if (res.statusCode != 200) return {};
       final decoded = jsonDecode(utf8.decode(res.bodyBytes));
       return decoded is Map<String, dynamic> ? decoded : {};

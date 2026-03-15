@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/l10n/app_l10n.dart';
 import '../../core/services/providers.dart';
+import '../../core/services/cors_proxy.dart';
 import '../../widgets/common/widgets.dart';
 
 class CandidatosScreen extends ConsumerStatefulWidget {
@@ -250,7 +251,8 @@ class _CandidatosScreenState extends ConsumerState<CandidatosScreen>
                               final u = item['TXURLORGANIZACIONPOLITICA']
                                       as String? ??
                                   '';
-                              if (n.isNotEmpty && u.isNotEmpty) m[n] = u;
+                              if (n.isNotEmpty && u.isNotEmpty)
+                                m[n] = CorsProxy.imageUrl(u);
                             }
                             return m;
                           },
@@ -457,7 +459,7 @@ class _CandidatosListState extends ConsumerState<_CandidatosList> {
                   : '${w[0].toUpperCase()}${w.substring(1).toLowerCase()}')
               .join(' ');
           final u = item['TXURLORGANIZACIONPOLITICA'] as String? ?? '';
-          if (n.isNotEmpty && u.isNotEmpty) m[n] = u;
+          if (n.isNotEmpty && u.isNotEmpty) m[n] = CorsProxy.imageUrl(u);
         }
         return m;
       },

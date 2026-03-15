@@ -1,6 +1,9 @@
 import 'dart:typed_data';
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:syncfusion_flutter_pdf/pdf.dart';
+
+import 'cors_proxy.dart';
 
 /// Servicio para descargar y parsear PDFs de planes de gobierno.
 class PdfService {
@@ -12,12 +15,16 @@ class PdfService {
   /// Retorna el texto completo del documento.
   Future<String> extractTextFromUrl(String url) async {
     try {
+      // On web, proxy through CORS Edge Function
+      final downloadUrl = kIsWeb ? CorsProxy.imageUrl(url) : url;
+
       // Descargar el PDF
       final response = await _dio.get<List<int>>(
-        url,
+        downloadUrl,
         options: Options(
           responseType: ResponseType.bytes,
           followRedirects: true,
+          receiveTimeout: const Duration(seconds: 30),
           validateStatus: (status) => status != null && status < 500,
         ),
       );

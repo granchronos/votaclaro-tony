@@ -10,6 +10,7 @@ import '../services/jne_api_service.dart';
 import '../services/encuestas_remote_service.dart';
 import '../services/pdf_service.dart';
 import '../services/supabase_service.dart';
+import '../services/cors_proxy.dart';
 
 // ─── Servicios singleton ─────────────────────────────────────────────────────
 
@@ -43,7 +44,7 @@ final supabaseServiceProvider = Provider<SupabaseService>((ref) {
 /// Provider para el modo de tema (light/dark/system).
 /// El valor inicial se carga desde SharedPreferences/Supabase en [VotaClaro._loadSavedTheme].
 final themeModeProvider = StateProvider<ThemeMode>((ref) {
-  return ThemeMode.system;
+  return ThemeMode.light;
 });
 
 // ─── Candidatos (todos desde API JNE Voto Informado) ─────────────────────────
@@ -51,6 +52,8 @@ final themeModeProvider = StateProvider<ThemeMode>((ref) {
 /// Candidatos presidenciales desde la API real del JNE.
 final candidatosPresidenteProvider =
     FutureProvider.autoDispose<List<Map<String, dynamic>>>((ref) async {
+  // Keep alive to avoid refetching on navigation
+  ref.keepAlive();
   final cache = ref.read(candidatosCacheServiceProvider);
   final jne = ref.read(jneApiServiceProvider);
 
@@ -605,8 +608,7 @@ class MiVotoNotifier extends StateNotifier<MiVotoState> {
         // L2: JNE API
         final plan = await jne.getPlanGobierno(idOP).catchError((_) => null);
         if (plan == null) return <String, dynamic>{};
-        final idPlan =
-            plan['idPlanGobierno'] as int? ?? 0;
+        final idPlan = plan['idPlanGobierno'] as int? ?? 0;
         if (idPlan <= 0) return <String, dynamic>{};
 
         final detalle = await jne
@@ -991,8 +993,8 @@ final topCandidatosPorEncuestaProvider =
 
   // Promedio ponderado: peso = recencia × sqrt(tamaño_muestra / máximo)
   // Encuestas recientes y de mayor muestra tienen más peso en el ranking
-  final maxMuestreo = encuestas.fold<int>(
-      1, (m, e) => e.muestreo > m ? e.muestreo : m);
+  final maxMuestreo =
+      encuestas.fold<int>(1, (m, e) => e.muestreo > m ? e.muestreo : m);
   final now = DateTime.now();
   final totalsW = <String, double>{};
   final weightsW = <String, double>{};
@@ -1005,7 +1007,8 @@ final topCandidatosPorEncuestaProvider =
     final weight = recencyW * sampleW;
 
     for (final r in enc.resultados) {
-      totalsW[r.candidatoId] = (totalsW[r.candidatoId] ?? 0) + r.porcentaje * weight;
+      totalsW[r.candidatoId] =
+          (totalsW[r.candidatoId] ?? 0) + r.porcentaje * weight;
       weightsW[r.candidatoId] = (weightsW[r.candidatoId] ?? 0) + weight;
       nameMap[r.candidatoId] = r.nombreCandidato;
     }
@@ -1066,7 +1069,8 @@ final topCandidatosPorEncuestaProvider =
             : '${w[0].toUpperCase()}${w.substring(1).toLowerCase()}')
         .join(' ');
     final url = item['TXURLORGANIZACIONPOLITICA'] as String? ?? '';
-    if (normalized.isNotEmpty && url.isNotEmpty) logoMap[normalized] = url;
+    if (normalized.isNotEmpty && url.isNotEmpty)
+      logoMap[normalized] = CorsProxy.imageUrl(url);
   }
 
   return enriched.map((c) {

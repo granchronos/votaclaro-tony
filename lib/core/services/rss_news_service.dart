@@ -3,12 +3,11 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:http/http.dart' as http;
 import 'package:xml/xml.dart';
 import '../models/electoral_models.dart';
+import 'cors_proxy.dart';
 
 /// Servicio que agrega RSS de fuentes periodísticas verificadas peruanas.
 /// En web usa el proxy allorigins.win para evitar CORS; en iOS/Android va directo.
 class RssNewsService {
-  static const String _corsProxy = 'https://api.allorigins.win/raw?url=';
-
   // ── Fuentes ───────────────────────────────────────────────────────────────
   static const List<FuenteRss> fuentes = [
     FuenteRss(
@@ -102,19 +101,20 @@ class RssNewsService {
 
   Future<List<Noticia>> _fetchFeed(FuenteRss fuente) async {
     try {
-      // On native (iOS/Android) fetch directly; on web use CORS proxy
-      final Uri uri;
-      if (kIsWeb) {
-        final encoded = Uri.encodeComponent(fuente.url);
-        uri = Uri.parse('$_corsProxy$encoded');
-      } else {
-        uri = Uri.parse(fuente.url);
-      }
-      final res = await http.get(uri, headers: {
+      final uri = Uri.parse(fuente.url);
+      final headers = {
         'Accept': 'application/rss+xml, application/xml, text/xml'
-      }).timeout(const Duration(seconds: 15));
+      };
+      final http.Response res;
+      if (kIsWeb) {
+        res = await CorsProxy.get(uri, headers: headers)
+            .timeout(const Duration(seconds: 15));
+      } else {
+        res = await http
+            .get(uri, headers: headers)
+            .timeout(const Duration(seconds: 15));
+      }
       if (res.statusCode != 200) return [];
-      // Decode from bytes as UTF-8 to handle tildes/accents correctly
       final body = utf8.decode(res.bodyBytes, allowMalformed: true);
       return _parseRss(body, fuente);
     } catch (_) {

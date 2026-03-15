@@ -35,12 +35,12 @@ class _VotaClaroState extends ConsumerState<VotaClaro> {
       if (saved != null && mounted) {
         final mode = ThemeMode.values.firstWhere(
           (m) => m.name == saved,
-          orElse: () => ThemeMode.system,
+          orElse: () => ThemeMode.light,
         );
         ref.read(themeModeProvider.notifier).state = mode;
       }
     } catch (_) {
-      // Sin conexión — usar valor por defecto (system)
+      // Sin conexión — usar valor por defecto (light)
     }
   }
 

@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import '../models/electoral_models.dart';
+import 'cors_proxy.dart';
 
 /// Obtiene encuestas de intención de voto presidencial desde un JSON alojado
 /// externamente (GitHub Gist u otro hosting estático).
@@ -12,21 +13,19 @@ class EncuestasRemoteService {
   static const String gistUrl =
       'https://gist.githubusercontent.com/granchronos/e213c6773db98bda538e78473b1cf508/raw/encuestas.json';
 
-  static const String _corsProxy = 'https://api.allorigins.win/raw?url=';
-
   Future<List<Encuesta>> fetchEncuestas() async {
     try {
-      // On native platforms (iOS/Android) there's no CORS — fetch directly
-      final Uri uri;
+      final uri = Uri.parse(gistUrl);
+      final headers = {'Accept': 'application/json'};
+      final http.Response res;
       if (kIsWeb) {
-        uri = Uri.parse('$_corsProxy${Uri.encodeComponent(gistUrl)}');
+        res = await CorsProxy.get(uri, headers: headers)
+            .timeout(const Duration(seconds: 10));
       } else {
-        uri = Uri.parse(gistUrl);
+        res = await http
+            .get(uri, headers: headers)
+            .timeout(const Duration(seconds: 10));
       }
-
-      final res = await http.get(uri, headers: {
-        'Accept': 'application/json'
-      }).timeout(const Duration(seconds: 10));
 
       if (res.statusCode == 200) {
         final raw = jsonDecode(res.body);
