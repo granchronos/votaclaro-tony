@@ -1,5 +1,39 @@
 [
   {
+    "id": "ipsos_2026_03_11",
+    "empresa": "Ipsos Perú",
+    "metodologia": "Encuesta urbano-rural / Primer simulacro de votación",
+    "muestreo": 1315,
+    "margenError": 2.7,
+    "fechaPublicacion": "2026-03-11",
+    "urlFuente": "https://www.ipsos.com/es-pe/lopez-aliaga-y-fujimori-en-empate-tecnico-en-primer-simulacro-de-votacion",
+    "esCertificada": true,
+    "resultados": [
+      {"candidatoId": "lopez_aliaga", "nombreCandidato": "Rafael López Aliaga", "partido": "Renovación Popular", "porcentaje": 11.0},
+      {"candidatoId": "fujimori", "nombreCandidato": "Keiko Fujimori", "partido": "Fuerza Popular", "porcentaje": 9.0},
+      {"candidatoId": "alvarez", "nombreCandidato": "Carlos Álvarez", "partido": "País para Todos", "porcentaje": 6.0},
+      {"candidatoId": "acuna", "nombreCandidato": "César Acuña", "partido": "Alianza para el Progreso", "porcentaje": 4.0},
+      {"candidatoId": "lopez_chau", "nombreCandidato": "Alfonso López-Chau", "partido": "Ahora Nación", "porcentaje": 4.0},
+      {"candidatoId": "grozo", "nombreCandidato": "Wolfgang Grozo", "partido": "Primero la Gente", "porcentaje": 4.0},
+      {"candidatoId": "nieto", "nombreCandidato": "Martín Nieto", "partido": "Juntos por el Perú", "porcentaje": 2.0},
+      {"candidatoId": "sanchez", "nombreCandidato": "Roberto Sánchez", "partido": "Perú Libre", "porcentaje": 2.0},
+      {"candidatoId": "williams", "nombreCandidato": "Flor Pablo Williams", "partido": "Partido Morado", "porcentaje": 2.0}
+    ],
+    "simulacro": {
+      "tipo": "Primer simulacro de votación presidencial",
+      "resultadosVotosValidos": [
+        {"candidatoId": "lopez_aliaga", "nombreCandidato": "Rafael López Aliaga", "porcentajeVotosValidos": 17.2},
+        {"candidatoId": "fujimori", "nombreCandidato": "Keiko Fujimori", "porcentajeVotosValidos": 14.2},
+        {"candidatoId": "alvarez", "nombreCandidato": "Carlos Álvarez", "porcentajeVotosValidos": 8.9},
+        {"candidatoId": "acuna", "nombreCandidato": "César Acuña", "porcentajeVotosValidos": 8.1},
+        {"candidatoId": "lopez_chau", "nombreCandidato": "Alfonso López-Chau", "porcentajeVotosValidos": 6.4},
+        {"candidatoId": "grozo", "nombreCandidato": "Wolfgang Grozo", "porcentajeVotosValidos": 5.1}
+      ],
+      "votoFirme": 37,
+      "nota": "Empate técnico entre López Aliaga y Fujimori; brecha se acortó de 4 a 1 punto. Carlos Álvarez recupera terreno. Wolfgang Grozo sube de 1% a 4%."
+    }
+  },
+  {
     "id": "ipsos_2026_02_20",
     "empresa": "Ipsos Perú",
     "metodologia": "Encuesta urbano-rural",

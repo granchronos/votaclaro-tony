@@ -590,8 +590,14 @@ class _PlanGobiernoPdfSection extends ConsumerWidget {
                 ),
               ),
               data: (parsed) {
+                final resumen = parsed['resumen'] as String? ?? '';
+                final secciones =
+                    parsed['secciones'] as Map<String, dynamic>? ?? {};
+                final longitudTotal = parsed['longitudTotal'] as int? ?? 0;
+
+                // Si no hay contenido útil, mostrar mensaje limpio
                 if (parsed.containsKey('error') ||
-                    !parsed.containsKey('resumen')) {
+                    resumen.length < 30) {
                   return Container(
                     padding: const EdgeInsets.all(12),
                     margin: const EdgeInsets.only(bottom: 12),
@@ -607,7 +613,7 @@ class _PlanGobiernoPdfSection extends ConsumerWidget {
                         SizedBox(width: 10),
                         Expanded(
                           child: Text(
-                            'Descarga el documento para revisar las propuestas detalladas.',
+                            'El documento no pudo ser analizado automáticamente. Descarga el PDF para revisar las propuestas.',
                             style: TextStyle(
                               fontSize: 12,
                               color: AppColors.textSecondary,
@@ -620,64 +626,57 @@ class _PlanGobiernoPdfSection extends ConsumerWidget {
                   );
                 }
 
-                final resumen = parsed['resumen'] as String? ?? '';
-                final secciones =
-                    parsed['secciones'] as Map<String, dynamic>? ?? {};
-                final longitudTotal = parsed['longitudTotal'] as int? ?? 0;
-
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // Resumen inicial
-                    if (resumen.isNotEmpty) ...[
-                      Container(
-                        padding: const EdgeInsets.all(12),
-                        margin: const EdgeInsets.only(bottom: 12),
-                        decoration: BoxDecoration(
-                          color: AppColors.primary.withOpacity(0.05),
-                          borderRadius: BorderRadius.circular(10),
-                          border: Border.all(
-                            color: AppColors.primary.withOpacity(0.1),
-                          ),
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              children: [
-                                const Icon(Icons.auto_awesome,
-                                    color: AppColors.primary, size: 16),
-                                const SizedBox(width: 6),
-                                Text(
-                                  'Resumen Automático',
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w700,
-                                    color: AppColors.primary,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              resumen,
-                              style: const TextStyle(
-                                fontSize: 12,
-                                color: AppColors.textPrimary,
-                                height: 1.5,
-                              ),
-                              maxLines: 8,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ],
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      margin: const EdgeInsets.only(bottom: 12),
+                      decoration: BoxDecoration(
+                        color: AppColors.primary.withOpacity(0.05),
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(
+                          color: AppColors.primary.withOpacity(0.1),
                         ),
                       ),
-                    ],
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              const Icon(Icons.auto_awesome,
+                                  color: AppColors.primary, size: 16),
+                              const SizedBox(width: 6),
+                              Text(
+                                'Extracto del Plan de Gobierno',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w700,
+                                  color: AppColors.primary,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            resumen,
+                            style: const TextStyle(
+                              fontSize: 12,
+                              color: AppColors.textPrimary,
+                              height: 1.5,
+                            ),
+                            maxLines: 10,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
+                      ),
+                    ),
 
                     // Secciones detectadas
                     if (secciones.isNotEmpty) ...[
                       Text(
-                        'Secciones detectadas (${secciones.length})',
+                        'Temas identificados (${secciones.length})',
                         style: TextStyle(
                           fontSize: 13,
                           fontWeight: FontWeight.w600,
@@ -686,6 +685,14 @@ class _PlanGobiernoPdfSection extends ConsumerWidget {
                       ),
                       const SizedBox(height: 8),
                       ...secciones.entries.map((entry) {
+                        final iconMap = {
+                          'Seguridad Ciudadana': Icons.shield_outlined,
+                          'Economía y Empleo': Icons.trending_up,
+                          'Educación': Icons.school_outlined,
+                          'Salud': Icons.local_hospital_outlined,
+                          'Medio Ambiente': Icons.eco_outlined,
+                          'Corrupción': Icons.gavel_outlined,
+                        };
                         return Container(
                           margin: const EdgeInsets.only(bottom: 8),
                           padding: const EdgeInsets.all(10),
@@ -696,23 +703,33 @@ class _PlanGobiernoPdfSection extends ConsumerWidget {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(
-                                entry.key,
-                                style: const TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w700,
-                                  color: AppColors.primary,
-                                ),
+                              Row(
+                                children: [
+                                  Icon(
+                                    iconMap[entry.key] ?? Icons.article_outlined,
+                                    size: 14,
+                                    color: AppColors.primary,
+                                  ),
+                                  const SizedBox(width: 6),
+                                  Text(
+                                    entry.key,
+                                    style: const TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w700,
+                                      color: AppColors.primary,
+                                    ),
+                                  ),
+                                ],
                               ),
-                              const SizedBox(height: 4),
+                              const SizedBox(height: 6),
                               Text(
                                 entry.value as String,
                                 style: const TextStyle(
                                   fontSize: 11,
                                   color: AppColors.textSecondary,
-                                  height: 1.4,
+                                  height: 1.5,
                                 ),
-                                maxLines: 4,
+                                maxLines: 5,
                                 overflow: TextOverflow.ellipsis,
                               ),
                             ],
@@ -727,7 +744,7 @@ class _PlanGobiernoPdfSection extends ConsumerWidget {
                       Padding(
                         padding: const EdgeInsets.only(bottom: 12),
                         child: Text(
-                          'Documento de ${(longitudTotal / 1000).toStringAsFixed(1)}k caracteres',
+                          'Documento de ${(longitudTotal / 1000).toStringAsFixed(1)}k caracteres analizado',
                           style: TextStyle(
                             fontSize: 10,
                             color: AppColors.textSecondary.withOpacity(0.7),
