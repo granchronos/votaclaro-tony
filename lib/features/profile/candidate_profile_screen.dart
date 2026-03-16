@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../core/constants/app_colors.dart';
+import '../../core/constants/debate_data.dart';
 import '../../core/l10n/app_l10n.dart';
 import '../../core/services/providers.dart';
 import '../../widgets/common/widgets.dart';
@@ -107,6 +108,7 @@ class _PerfilDetail extends StatelessWidget {
               profesion: profesion,
               region: region,
               fotoUrl: fotoUrl,
+              simboloPartidoUrl: perfil['simboloPartidoUrl'] as String?,
             ),
           ),
         ),
@@ -120,6 +122,22 @@ class _PerfilDetail extends StatelessWidget {
                   formula: formula,
                   partidoColor: partidoColor,
                 ),
+
+              // ─ Análisis Electoral IA ─
+              if (plan != null)
+                _AnalisisElectoralSection(
+                  nombre: nombre,
+                  partido: partido,
+                  plan: plan,
+                  hv: hv,
+                ),
+
+              // ─ Debates Presidenciales ─
+              _DebateSection(
+                partido: partido,
+                partidoOriginal:
+                    perfil['partidoOriginal'] as String? ?? partido,
+              ),
 
               // ─ Plan de Gobierno — Documentos PDF ─
               if (plan != null) _PlanGobiernoPdfSection(plan: plan),
@@ -186,15 +204,6 @@ class _PerfilDetail extends StatelessWidget {
                   child: _PlanGobiernoSection(plan: plan),
                 ),
 
-              // ─ Análisis Electoral IA ─
-              if (plan != null)
-                _AnalisisElectoralSection(
-                  nombre: nombre,
-                  partido: partido,
-                  plan: plan,
-                  hv: hv,
-                ),
-
               // ─ Leyenda ─
               const LeyendaSemaforo(),
 
@@ -238,6 +247,7 @@ class _HeaderBackground extends StatelessWidget {
   final Color partidoColor;
   final int edad;
   final String? fotoUrl;
+  final String? simboloPartidoUrl;
 
   const _HeaderBackground({
     required this.nombre,
@@ -247,6 +257,7 @@ class _HeaderBackground extends StatelessWidget {
     required this.profesion,
     required this.region,
     this.fotoUrl,
+    this.simboloPartidoUrl,
   });
 
   @override
@@ -290,11 +301,33 @@ class _HeaderBackground extends StatelessWidget {
                       style: Theme.of(context).textTheme.headlineMedium),
                   const SizedBox(height: 4),
                   Row(children: [
-                    Container(
-                        width: 10,
-                        height: 10,
-                        decoration: BoxDecoration(
-                            color: partidoColor, shape: BoxShape.circle)),
+                    if (simboloPartidoUrl != null &&
+                        simboloPartidoUrl!.isNotEmpty)
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(4),
+                        child: CachedNetworkImage(
+                          imageUrl: simboloPartidoUrl!,
+                          width: 24,
+                          height: 24,
+                          fit: BoxFit.contain,
+                          placeholder: (_, __) => Container(
+                              width: 10,
+                              height: 10,
+                              decoration: BoxDecoration(
+                                  color: partidoColor, shape: BoxShape.circle)),
+                          errorWidget: (_, __, ___) => Container(
+                              width: 10,
+                              height: 10,
+                              decoration: BoxDecoration(
+                                  color: partidoColor, shape: BoxShape.circle)),
+                        ),
+                      )
+                    else
+                      Container(
+                          width: 10,
+                          height: 10,
+                          decoration: BoxDecoration(
+                              color: partidoColor, shape: BoxShape.circle)),
                     const SizedBox(width: 6),
                     Expanded(
                       child: Text(partido,
@@ -321,6 +354,235 @@ class _HeaderBackground extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+
+// ─── Debate section ──────────────────────────────────────────────────────────
+
+class _DebateSection extends ConsumerWidget {
+  final String partido;
+  final String partidoOriginal;
+  const _DebateSection(
+      {required this.partido, required this.partidoOriginal});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    // Try matching with original (uppercase) name first, then title-cased
+    var debateIndices = DebateData.debatesForParty(partidoOriginal);
+    if (debateIndices.isEmpty) {
+      debateIndices = DebateData.debatesForParty(partido);
+    }
+    if (debateIndices.isEmpty) return const SizedBox.shrink();
+
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final candidatos = ref.watch(candidatosPresidenteProvider);
+
+    return Card(
+      margin: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(children: [
+              const Text('🎙️', style: TextStyle(fontSize: 18)),
+              const SizedBox(width: 8),
+              Text('Debates Presidenciales',
+                  style: Theme.of(context).textTheme.titleLarge),
+            ]),
+            const Divider(height: 20),
+            ...debateIndices.map((i) {
+              final debate = DebateData.debates[i];
+              final normSelf = partidoOriginal.toUpperCase();
+              final rivals = debate.participants
+                  .where((p) => p.toUpperCase() != normSelf)
+                  .toList();
+
+              return Container(
+                margin: const EdgeInsets.only(bottom: 12),
+                padding: const EdgeInsets.all(14),
+                decoration: BoxDecoration(
+                  color: isDark
+                      ? Colors.white.withOpacity(0.04)
+                      : const Color(0xFFF5F9FF),
+                  borderRadius: BorderRadius.circular(14),
+                  border: Border.all(
+                    color: isDark
+                        ? Colors.white.withOpacity(0.08)
+                        : const Color(0xFFBBDEFB),
+                  ),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Icon(Icons.record_voice_over_rounded,
+                            size: 18,
+                            color: isDark
+                                ? Colors.blueAccent
+                                : const Color(0xFF1565C0)),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            '${debate.title} — ${debate.phase}',
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w700,
+                              color: isDark ? Colors.white : Colors.black87,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 6),
+                    Row(
+                      children: [
+                        Icon(Icons.calendar_today_rounded,
+                            size: 12,
+                            color: isDark ? Colors.white38 : Colors.blueGrey),
+                        const SizedBox(width: 6),
+                        Text(
+                          debate.fullDate,
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: isDark ? Colors.white54 : Colors.black54,
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Icon(Icons.schedule_rounded,
+                            size: 12,
+                            color: isDark ? Colors.white38 : Colors.blueGrey),
+                        const SizedBox(width: 4),
+                        Text(
+                          '20:00h',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: isDark ? Colors.white54 : Colors.black54,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      debate.topics.replaceAll(' · ', '\n'),
+                      style: TextStyle(
+                        fontSize: 11,
+                        color: isDark ? Colors.white38 : Colors.blueGrey,
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    Text(
+                      'Rivales en este debate:',
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        color: isDark ? Colors.white70 : Colors.black87,
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    Wrap(
+                      spacing: 6,
+                      runSpacing: 6,
+                      children: rivals.map((rival) {
+                        String? symbolUrl;
+                        String? rivalNombre;
+                        final rivalNorm = rival.toUpperCase();
+                        candidatos.whenData((list) {
+                          for (final c in list) {
+                            final pOrig = (c['partidoOriginal'] as String? ??
+                                    c['partido'] as String? ??
+                                    '')
+                                .toUpperCase();
+                            if (pOrig == rivalNorm ||
+                                pOrig.contains(rivalNorm) ||
+                                rivalNorm.contains(pOrig)) {
+                              symbolUrl = c['simboloPartidoUrl'] as String?;
+                              rivalNombre = c['nombreCompleto'] as String?;
+                              break;
+                            }
+                          }
+                        });
+
+                        return Tooltip(
+                          message: rivalNombre ?? rival,
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 8, vertical: 5),
+                            decoration: BoxDecoration(
+                              color: isDark
+                                  ? Colors.white.withOpacity(0.06)
+                                  : Colors.white,
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(
+                                color: isDark
+                                    ? Colors.white.withOpacity(0.1)
+                                    : Colors.grey.shade200,
+                              ),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                if (symbolUrl != null && symbolUrl!.isNotEmpty)
+                                  Padding(
+                                    padding: const EdgeInsets.only(right: 5),
+                                    child: CachedNetworkImage(
+                                      imageUrl: symbolUrl!,
+                                      width: 18,
+                                      height: 18,
+                                      fit: BoxFit.contain,
+                                      errorWidget: (_, __, ___) =>
+                                          const SizedBox.shrink(),
+                                    ),
+                                  ),
+                                Flexible(
+                                  child: Text(
+                                    rivalNombre ?? _titleCase(rival),
+                                    style: TextStyle(
+                                      fontSize: 10,
+                                      color: isDark
+                                          ? Colors.white70
+                                          : Colors.black87,
+                                    ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      }).toList(),
+                    ),
+                  ],
+                ),
+              );
+            }),
+          ],
+        ),
+      ),
+    );
+  }
+
+  String _titleCase(String s) {
+    return s.split(' ').map((w) {
+      if (w.isEmpty) return w;
+      final lower = w.toLowerCase();
+      const small = {
+        'de',
+        'del',
+        'la',
+        'el',
+        'y',
+        'e',
+        'en',
+        'al',
+        'para',
+        'por'
+      };
+      if (small.contains(lower)) return lower;
+      return lower[0].toUpperCase() + lower.substring(1);
+    }).join(' ');
   }
 }
 

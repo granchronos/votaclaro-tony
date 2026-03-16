@@ -246,6 +246,17 @@ class JneApiService {
     return CorsProxy.imageUrl('$_imageBase$guidFoto');
   }
 
+  /// URL del símbolo de la organización política.
+  static String simboloPartidoUrl(dynamic idOrganizacionPolitica) {
+    if (idOrganizacionPolitica == null) return '';
+    final id = idOrganizacionPolitica is int
+        ? idOrganizacionPolitica
+        : int.tryParse(idOrganizacionPolitica.toString()) ?? 0;
+    if (id <= 0) return '';
+    return CorsProxy.imageUrl(
+        'https://sroppublico.jne.gob.pe/Consulta/Simbolo/GetSimbolo/$id');
+  }
+
   // ── Utilitarios privados ───────────────────────────────────────────────
 
   /// Mapea un registro crudo del JNE al formato usado por la app.
@@ -269,6 +280,7 @@ class JneApiService {
       'id': 'jne_${idOP}_$dni',
       'nombreCompleto': fullName,
       'partido': _titleCase(partido),
+      'partidoOriginal': partido,
       'porcentajeEncuesta': 0.0,
       'fuenteEncuesta': 'JNE Voto Informado 2026',
       'edad': edad,
@@ -278,6 +290,7 @@ class JneApiService {
       'fotoUrl': foto,
       'colorPartido': null,
       'idOrganizacionPolitica': idOP,
+      'simboloPartidoUrl': simboloPartidoUrl(idOP),
       'dni': dni,
       'sexo': raw['strSexo'],
       'posicion': raw['intPosicion'],

@@ -7,6 +7,7 @@ import '../../features/mi_voto/mi_voto_screen.dart';
 import '../../features/polls/polls_screen.dart';
 import '../../features/news/news_screen.dart';
 import '../../features/como_votar/como_votar_screen.dart';
+import '../../features/favorites/favorites_screen.dart';
 import '../../widgets/navigation/app_navigation.dart';
 
 final appRouter = GoRouter(
@@ -87,6 +88,16 @@ final appRouter = GoRouter(
             path: '/noticias',
             pageBuilder: (context, state) => const NoTransitionPage(
               child: NoticiasScreen(),
+            ),
+          ),
+        ]),
+
+        // 6 — Favoritos
+        StatefulShellBranch(routes: [
+          GoRoute(
+            path: '/favoritos',
+            pageBuilder: (context, state) => const NoTransitionPage(
+              child: FavoritosScreen(),
             ),
           ),
         ]),

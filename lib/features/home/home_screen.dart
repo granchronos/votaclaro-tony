@@ -1,11 +1,12 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/constants/app_colors.dart';
+import '../../core/constants/debate_data.dart';
 import '../../core/l10n/app_l10n.dart';
 import '../../core/services/providers.dart';
+import '../../core/services/favorites_service.dart';
 import '../../widgets/common/widgets.dart';
 import '../../widgets/common/theme_mode_selector.dart';
 
@@ -18,7 +19,6 @@ class HomeScreen extends ConsumerStatefulWidget {
 
 class _HomeScreenState extends ConsumerState<HomeScreen> {
   String _searchQuery = '';
-  String? _filtroRiesgo; // 'ALTO', 'MEDIO', 'BAJO'
 
   @override
   Widget build(BuildContext context) {
@@ -62,6 +62,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         child: ListView(
           children: [
             const _HeroBanner(),
+            const _DebatesBanner(),
             const NeutralidadBanner(),
             const _EleccionTabs(),
 
@@ -93,41 +94,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               ),
             ),
 
-            // Filter chips - risk level
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
-              child: SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: Row(
-                  children: [
-                    _FilterChipCustom(
-                      label: '🟢 Riesgo Bajo',
-                      selected: _filtroRiesgo == 'BAJO',
-                      color: AppColors.viable,
-                      onTap: () => setState(() => _filtroRiesgo =
-                          _filtroRiesgo == 'BAJO' ? null : 'BAJO'),
-                    ),
-                    const SizedBox(width: 8),
-                    _FilterChipCustom(
-                      label: '🟡 Riesgo Medio',
-                      selected: _filtroRiesgo == 'MEDIO',
-                      color: AppColors.doubtful,
-                      onTap: () => setState(() => _filtroRiesgo =
-                          _filtroRiesgo == 'MEDIO' ? null : 'MEDIO'),
-                    ),
-                    const SizedBox(width: 8),
-                    _FilterChipCustom(
-                      label: '🔴 Riesgo Alto',
-                      selected: _filtroRiesgo == 'ALTO',
-                      color: AppColors.inviable,
-                      onTap: () => setState(() => _filtroRiesgo =
-                          _filtroRiesgo == 'ALTO' ? null : 'ALTO'),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-
             // Dynamic section header based on selected tab
             SectionHeader(
               title: selectedTab == 0
@@ -151,7 +117,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             _CandidatosList(
               tabIndex: selectedTab,
               searchQuery: _searchQuery,
-              filtroRiesgo: _filtroRiesgo,
             ),
             encuestas.when(
               data: (list) => list.isNotEmpty
@@ -190,7 +155,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   void _showAboutDialog(BuildContext context, AppL10n t) {
     showDialog(
       context: context,
-      builder: (_) => AlertDialog(
+      builder: (dialogContext) => AlertDialog(
         title: Text(t.acercaDe),
         content: Column(
           mainAxisSize: MainAxisSize.min,
@@ -205,7 +170,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () => Navigator.pop(dialogContext),
             child: Text(t.cerrar),
           ),
         ],
@@ -306,6 +271,720 @@ class _StatChip extends StatelessWidget {
   }
 }
 
+class _DebatesBanner extends StatelessWidget {
+  const _DebatesBanner();
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final accent = isDark ? const Color(0xFF90CAF9) : const Color(0xFF1565C0);
+    final debates = DebateData.debates;
+
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: isDark
+              ? [const Color(0xFF1E293B), const Color(0xFF0F172A)]
+              : [const Color(0xFFE3F2FD), const Color(0xFFBBDEFB)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: accent.withOpacity(0.15),
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: accent.withOpacity(0.12),
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  child: Icon(Icons.record_voice_over_rounded,
+                      color: accent, size: 24),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Debates Presidenciales 2026',
+                        style: TextStyle(
+                          color:
+                              isDark ? Colors.white : const Color(0xFF1A237E),
+                          fontSize: 16,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        '6 debates · 36 candidatos · 12 por fecha',
+                        style: TextStyle(
+                          color: isDark ? Colors.white54 : Colors.blueGrey,
+                          fontSize: 11,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFE53935).withOpacity(0.12),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        width: 6,
+                        height: 6,
+                        decoration: const BoxDecoration(
+                          color: Color(0xFFE53935),
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                      const SizedBox(width: 4),
+                      const Text(
+                        '20:00h',
+                        style: TextStyle(
+                          color: Color(0xFFE53935),
+                          fontSize: 10,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(20, 8, 20, 0),
+            child: Text(
+              '📍 Centro de Convenciones de Lima · Transmisión JNE Media',
+              style: TextStyle(
+                color: isDark ? Colors.white38 : Colors.blueGrey.shade600,
+                fontSize: 10,
+              ),
+            ),
+          ),
+          SizedBox(
+            height: 116,
+            child: ListView.separated(
+              scrollDirection: Axis.horizontal,
+              padding: const EdgeInsets.fromLTRB(20, 10, 20, 14),
+              itemCount: debates.length,
+              separatorBuilder: (_, __) => const SizedBox(width: 10),
+              itemBuilder: (_, i) => _DebateCard(
+                debate: debates[i],
+                index: i,
+                isDark: isDark,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _DebateCard extends StatelessWidget {
+  final DebateInfo debate;
+  final int index;
+  final bool isDark;
+  const _DebateCard({
+    required this.debate,
+    required this.index,
+    required this.isDark,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final isPhase2 = index >= 3;
+    final phaseColor = isPhase2
+        ? (isDark ? Colors.tealAccent : const Color(0xFF00897B))
+        : (isDark ? Colors.amber : const Color(0xFFF57F17));
+
+    return GestureDetector(
+      onTap: () => _showDebateDetail(context, debate, phaseColor),
+      child: Container(
+        width: 170,
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: isDark
+              ? Colors.white.withOpacity(0.06)
+              : Colors.white.withOpacity(0.7),
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: phaseColor.withOpacity(0.3)),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+              decoration: BoxDecoration(
+                color: phaseColor.withOpacity(0.12),
+                borderRadius: BorderRadius.circular(6),
+              ),
+              child: Text(
+                debate.date,
+                style: TextStyle(
+                  color: phaseColor,
+                  fontSize: 10,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ),
+            const SizedBox(height: 6),
+            Text(
+              '${debate.title} — ${debate.phase}',
+              style: TextStyle(
+                color: isDark ? Colors.white : const Color(0xFF1A237E),
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+            const Spacer(),
+            Text(
+              _shortTopics(debate.topics),
+              style: TextStyle(
+                color: isDark ? Colors.white54 : Colors.blueGrey,
+                fontSize: 10,
+              ),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  String _shortTopics(String topics) {
+    final parts = topics.split(' · ');
+    return parts.map((t) {
+      final words = t.split(' ');
+      if (words.length <= 3) return t;
+      // Take first word + last meaningful word
+      return '${words[0]} y ${words.last}';
+    }).join('\n');
+  }
+
+  void _showDebateDetail(
+      BuildContext context, DebateInfo debate, Color phaseColor) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => DraggableScrollableSheet(
+        initialChildSize: 0.7,
+        maxChildSize: 0.92,
+        minChildSize: 0.4,
+        builder: (_, scrollController) => Container(
+          decoration: BoxDecoration(
+            color: isDark ? const Color(0xFF1E293B) : Colors.white,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+          ),
+          child: ListView(
+            controller: scrollController,
+            padding: const EdgeInsets.fromLTRB(24, 12, 24, 32),
+            children: [
+              Center(
+                child: Container(
+                  width: 40,
+                  height: 4,
+                  margin: const EdgeInsets.only(bottom: 20),
+                  decoration: BoxDecoration(
+                    color: Colors.grey.withOpacity(0.3),
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+              ),
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: phaseColor.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    child: Icon(Icons.record_voice_over_rounded,
+                        color: phaseColor, size: 24),
+                  ),
+                  const SizedBox(width: 14),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          debate.title,
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.w700,
+                            color: isDark ? Colors.white : Colors.black87,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 8, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: phaseColor.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          child: Text(
+                            debate.phase,
+                            style: TextStyle(
+                              color: phaseColor,
+                              fontSize: 11,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 20),
+              _DetailRow(
+                icon: Icons.calendar_today_rounded,
+                label: debate.fullDate,
+                isDark: isDark,
+              ),
+              const SizedBox(height: 10),
+              _DetailRow(
+                icon: Icons.schedule_rounded,
+                label: '20:00 horas — Transmisión en vivo por JNE Media',
+                isDark: isDark,
+              ),
+              const SizedBox(height: 10),
+              _DetailRow(
+                icon: Icons.location_on_outlined,
+                label: 'Centro de Convenciones de Lima',
+                isDark: isDark,
+              ),
+              const SizedBox(height: 20),
+              // Topics
+              Text(
+                'Temas',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w700,
+                  color: isDark ? Colors.white : Colors.black87,
+                ),
+              ),
+              const SizedBox(height: 8),
+              ...debate.topics.split(' · ').map((topic) => Padding(
+                    padding: const EdgeInsets.only(bottom: 6),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Container(
+                          margin: const EdgeInsets.only(top: 6),
+                          width: 6,
+                          height: 6,
+                          decoration: BoxDecoration(
+                            color: phaseColor,
+                            shape: BoxShape.circle,
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Text(
+                            topic,
+                            style: TextStyle(
+                              fontSize: 13,
+                              color: isDark ? Colors.white70 : Colors.black54,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  )),
+              const SizedBox(height: 20),
+              // Moderators
+              Text(
+                'Moderadores',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w700,
+                  color: isDark ? Colors.white : Colors.black87,
+                ),
+              ),
+              const SizedBox(height: 10),
+              Row(
+                children: [
+                  _ModeratorChip(
+                      name: debate.moderator1,
+                      isDark: isDark,
+                      color: phaseColor),
+                  const SizedBox(width: 10),
+                  _ModeratorChip(
+                      name: debate.moderator2,
+                      isDark: isDark,
+                      color: phaseColor),
+                ],
+              ),
+              const SizedBox(height: 20),
+              // Candidates section
+              Text(
+                'Orden de participación — sorteo JNE',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w700,
+                  color: isDark ? Colors.white : Colors.black87,
+                ),
+              ),
+              const SizedBox(height: 10),
+              ...List.generate(debate.participants.length, (i) {
+                final party = debate.participants[i];
+                return _ParticipantTile(
+                  order: i + 1,
+                  partyName: party,
+                  isDark: isDark,
+                  phaseColor: phaseColor,
+                );
+              }),
+              const SizedBox(height: 16),
+              // Format info
+              Text(
+                'Formato del debate',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w700,
+                  color: isDark ? Colors.white : Colors.black87,
+                ),
+              ),
+              const SizedBox(height: 10),
+              _FormatItem(
+                number: '1',
+                title: 'Debate temático',
+                desc: '1 min exposición + 2.5 min interacción',
+                isDark: isDark,
+                color: phaseColor,
+              ),
+              _FormatItem(
+                number: '2',
+                title: 'Participación ciudadana',
+                desc: 'Preguntas de ciudadanos — 1\'30" de respuesta',
+                isDark: isDark,
+                color: phaseColor,
+              ),
+              _FormatItem(
+                number: '3',
+                title: 'Debate temático',
+                desc: '1 min exposición + 2.5 min interacción',
+                isDark: isDark,
+                color: phaseColor,
+              ),
+              _FormatItem(
+                number: '4',
+                title: 'Mensaje final',
+                desc: '1 min por candidato para cerrar',
+                isDark: isDark,
+                color: phaseColor,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _ParticipantTile extends ConsumerWidget {
+  final int order;
+  final String partyName;
+  final bool isDark;
+  final Color phaseColor;
+  const _ParticipantTile({
+    required this.order,
+    required this.partyName,
+    required this.isDark,
+    required this.phaseColor,
+  });
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    // Try to match with presidential candidates to get symbol URL & candidate name
+    final candidatos = ref.watch(candidatosPresidenteProvider);
+    String? symbolUrl;
+    String? candidatoNombre;
+    final partyUpper = partyName.toUpperCase();
+    candidatos.whenData((list) {
+      for (final c in list) {
+        final pOrig = (c['partidoOriginal'] as String? ??
+                c['partido'] as String? ??
+                '')
+            .toUpperCase();
+        if (pOrig == partyUpper ||
+            pOrig.contains(partyUpper) ||
+            partyUpper.contains(pOrig)) {
+          symbolUrl = c['simboloPartidoUrl'] as String?;
+          candidatoNombre = c['nombreCompleto'] as String?;
+          break;
+        }
+      }
+    });
+
+    final displayName = _titleCaseParty(partyName);
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      decoration: BoxDecoration(
+        color: isDark ? Colors.white.withOpacity(0.04) : Colors.grey.shade50,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: isDark ? Colors.white.withOpacity(0.06) : Colors.grey.shade200,
+        ),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 26,
+            height: 26,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              color: phaseColor.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Text(
+              '$order',
+              style: TextStyle(
+                color: phaseColor,
+                fontSize: 12,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ),
+          const SizedBox(width: 10),
+          if (symbolUrl != null && symbolUrl!.isNotEmpty)
+            ClipRRect(
+              borderRadius: BorderRadius.circular(6),
+              child: CachedNetworkImage(
+                imageUrl: symbolUrl!,
+                width: 28,
+                height: 28,
+                fit: BoxFit.contain,
+                errorWidget: (_, __, ___) => Icon(
+                  Icons.groups_rounded,
+                  size: 20,
+                  color: isDark ? Colors.white24 : Colors.grey.shade400,
+                ),
+              ),
+            )
+          else
+            Icon(
+              Icons.groups_rounded,
+              size: 20,
+              color: isDark ? Colors.white24 : Colors.grey.shade400,
+            ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  displayName,
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    color: isDark ? Colors.white : Colors.black87,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                if (candidatoNombre != null)
+                  Text(
+                    candidatoNombre!,
+                    style: TextStyle(
+                      fontSize: 10,
+                      color: isDark ? Colors.white38 : Colors.grey,
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  String _titleCaseParty(String s) {
+    return s.split(' ').map((w) {
+      if (w.isEmpty) return w;
+      final lower = w.toLowerCase();
+      const small = {
+        'de',
+        'del',
+        'la',
+        'el',
+        'y',
+        'e',
+        'en',
+        'al',
+        'para',
+        'por'
+      };
+      if (small.contains(lower)) return lower;
+      return lower[0].toUpperCase() + lower.substring(1);
+    }).join(' ');
+  }
+}
+
+class _DetailRow extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final bool isDark;
+  const _DetailRow(
+      {required this.icon, required this.label, required this.isDark});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Icon(icon, size: 16, color: isDark ? Colors.white38 : Colors.blueGrey),
+        const SizedBox(width: 10),
+        Expanded(
+          child: Text(
+            label,
+            style: TextStyle(
+              fontSize: 13,
+              color: isDark ? Colors.white70 : Colors.black54,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _ModeratorChip extends StatelessWidget {
+  final String name;
+  final bool isDark;
+  final Color color;
+  const _ModeratorChip(
+      {required this.name, required this.isDark, required this.color});
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        decoration: BoxDecoration(
+          color: color.withOpacity(0.08),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: color.withOpacity(0.15)),
+        ),
+        child: Row(
+          children: [
+            CircleAvatar(
+              radius: 14,
+              backgroundColor: color.withOpacity(0.15),
+              child: Icon(Icons.mic, size: 14, color: color),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                name,
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  color: isDark ? Colors.white : Colors.black87,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _FormatItem extends StatelessWidget {
+  final String number;
+  final String title;
+  final String desc;
+  final bool isDark;
+  final Color color;
+  const _FormatItem({
+    required this.number,
+    required this.title,
+    required this.desc,
+    required this.isDark,
+    required this.color,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 10),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: 24,
+            height: 24,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              color: color.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Text(
+              number,
+              style: TextStyle(
+                color: color,
+                fontSize: 12,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: isDark ? Colors.white : Colors.black87,
+                  ),
+                ),
+                Text(
+                  desc,
+                  style: TextStyle(
+                    fontSize: 11,
+                    color: isDark ? Colors.white38 : Colors.grey,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 class _EleccionTabs extends ConsumerStatefulWidget {
   const _EleccionTabs();
 
@@ -361,72 +1040,14 @@ class _EleccionTabsState extends ConsumerState<_EleccionTabs> {
   }
 }
 
-/// Custom filter chip with better design
-class _FilterChipCustom extends StatelessWidget {
-  final String label;
-  final bool selected;
-  final Color color;
-  final VoidCallback onTap;
-
-  const _FilterChipCustom({
-    required this.label,
-    required this.selected,
-    required this.color,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-        decoration: BoxDecoration(
-          color: selected ? color.withOpacity(0.15) : AppColors.surfaceVariant,
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(
-            color: selected ? color : AppColors.border,
-            width: selected ? 1.5 : 1,
-          ),
-        ),
-        child: Text(
-          label,
-          style: TextStyle(
-            fontSize: 12,
-            fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
-            color: selected ? color : AppColors.textSecondary,
-          ),
-        ),
-      ),
-    );
-  }
-}
-
 /// Displays the candidate list for the selected election tab (president/congress/andean)
 class _CandidatosList extends ConsumerWidget {
   final int tabIndex;
   final String searchQuery;
-  final String? filtroRiesgo;
   const _CandidatosList({
     required this.tabIndex,
     required this.searchQuery,
-    this.filtroRiesgo,
   });
-
-  /// Calculates risk level from candidate data (matches profile logic)
-  static String _calcRiesgoNivel(Map<String, dynamic> c) {
-    int score = 0;
-    // We don't have full HV here, but we can use basic indicators
-    final sentPen = (c['sentenciasPenales'] as num?)?.toInt() ?? 0;
-    final sentObl = (c['sentenciasObligatorias'] as num?)?.toInt() ?? 0;
-    if (sentPen > 0) score += 3;
-    if (sentObl > 0) score += 2;
-    // Use poll presence as proxy — low unknown risk
-    if (score >= 5) return 'ALTO';
-    if (score >= 3) return 'MEDIO';
-    return 'BAJO';
-  }
 
   List<Map<String, dynamic>> _applyFilters(List<Map<String, dynamic>> list) {
     var filtered = list;
@@ -452,18 +1073,12 @@ class _CandidatosList extends ConsumerWidget {
       return topAsync.when(
         data: (list) {
           var filtered = _applyFilters(list);
-          // Risk filter for presidential
-          if (filtroRiesgo != null) {
-            filtered = filtered
-                .where((c) => _calcRiesgoNivel(c) == filtroRiesgo)
-                .toList();
-          }
           if (filtered.isEmpty) {
             return Padding(
               padding: const EdgeInsets.all(24),
               child: Center(
                 child: Text(
-                  searchQuery.isNotEmpty || filtroRiesgo != null
+                  searchQuery.isNotEmpty
                       ? 'Sin resultados para el filtro aplicado'
                       : t.sinCandidatos,
                   style: const TextStyle(color: AppColors.textSecondary),
@@ -587,7 +1202,7 @@ class _CandidatosList extends ConsumerWidget {
 }
 
 /// Top candidate card with poll %, party symbol, and "qué pasaría" section
-class _TopCandidatoCard extends StatelessWidget {
+class _TopCandidatoCard extends ConsumerWidget {
   final Map<String, dynamic> candidato;
   final double promedioEncuesta;
   final VoidCallback onTap;
@@ -599,13 +1214,16 @@ class _TopCandidatoCard extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final nombre = candidato['nombreCompleto'] as String? ?? 'Sin nombre';
     final partido = candidato['partido'] as String? ?? '';
     final fotoUrl = candidato['fotoUrl'] as String?;
-    final logoPartidoUrl = candidato['logoPartidoUrl'] as String?;
+    final simboloUrl = candidato['simboloPartidoUrl'] as String?;
+    final id = candidato['id'] as String? ?? '';
     final partidoColor =
         AppColors.partidoColors[partido] ?? AppColors.partidoColors['default']!;
+    final isFav = ref.watch(favoritesProvider.select(
+        (favs) => favs[FavoriteCategory.presidente]?.contains(id) ?? false));
 
     final enfoque = _getEnfoqueBrief(partido);
 
@@ -670,30 +1288,30 @@ class _TopCandidatoCard extends StatelessWidget {
                         const SizedBox(height: 2),
                         Row(
                           children: [
-                            if (logoPartidoUrl != null)
-                              SizedBox(
-                                width: 20,
-                                height: 20,
-                                child: Stack(
-                                  alignment: Alignment.center,
-                                  children: [
-                                    Container(
-                                      width: 8,
-                                      height: 8,
-                                      decoration: BoxDecoration(
-                                        color: partidoColor,
-                                        shape: BoxShape.circle,
-                                      ),
+                            if (simboloUrl != null && simboloUrl.isNotEmpty)
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(4),
+                                child: CachedNetworkImage(
+                                  imageUrl: simboloUrl,
+                                  width: 20,
+                                  height: 20,
+                                  fit: BoxFit.contain,
+                                  placeholder: (_, __) => Container(
+                                    width: 8,
+                                    height: 8,
+                                    decoration: BoxDecoration(
+                                      color: partidoColor,
+                                      shape: BoxShape.circle,
                                     ),
-                                    SvgPicture.network(
-                                      logoPartidoUrl,
-                                      width: 20,
-                                      height: 20,
-                                      fit: BoxFit.contain,
-                                      placeholderBuilder: (_) =>
-                                          const SizedBox(),
+                                  ),
+                                  errorWidget: (_, __, ___) => Container(
+                                    width: 8,
+                                    height: 8,
+                                    decoration: BoxDecoration(
+                                      color: partidoColor,
+                                      shape: BoxShape.circle,
                                     ),
-                                  ],
+                                  ),
                                 ),
                               )
                             else
@@ -724,6 +1342,24 @@ class _TopCandidatoCard extends StatelessWidget {
                     ),
                   ),
                 ],
+              ),
+
+              // Favorite toggle row
+              Align(
+                alignment: Alignment.centerRight,
+                child: GestureDetector(
+                  onTap: () => ref
+                      .read(favoritesProvider.notifier)
+                      .toggle(FavoriteCategory.presidente, id),
+                  child: Padding(
+                    padding: const EdgeInsets.only(top: 4),
+                    child: Icon(
+                      isFav ? Icons.favorite : Icons.favorite_border,
+                      size: 20,
+                      color: isFav ? Colors.red : AppColors.textHint,
+                    ),
+                  ),
+                ),
               ),
 
               // "Qué pasaría si gana" section

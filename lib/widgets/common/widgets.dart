@@ -1,10 +1,10 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_strings_qu.dart';
 import '../../core/models/candidato.dart';
+import '../../core/services/favorites_service.dart';
 
 /// Badge de semáforo de viabilidad 🟢🟡🔴
 class ViabilidadBadge extends StatelessWidget {
@@ -191,8 +191,19 @@ class SourceTag extends StatelessWidget {
   }
 }
 
+/// Resuelve la categoría de favoritos según el tipo de elección del candidato.
+FavoriteCategory favCategoryFromCandidato(Map<String, dynamic> c) {
+  final tipo = c['tipoEleccion'] as int? ?? c['idTipoEleccion'] as int? ?? 1;
+  return switch (tipo) {
+    3 => FavoriteCategory.andino,
+    14 || 20 || 21 => FavoriteCategory.senador,
+    15 => FavoriteCategory.diputado,
+    _ => FavoriteCategory.presidente,
+  };
+}
+
 /// Card de candidato para listas
-class CandidatoCard extends StatelessWidget {
+class CandidatoCard extends ConsumerWidget {
   final Map<String, dynamic> candidato;
   final VoidCallback onTap;
   final bool showEncuesta;
@@ -205,12 +216,16 @@ class CandidatoCard extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final nombre = candidato['nombreCompleto'] as String? ?? 'Sin nombre';
     final partido = candidato['partido'] as String? ?? '';
     final pct = (candidato['porcentajeEncuesta'] as num?)?.toDouble() ?? 0.0;
     final fotoUrl = candidato['fotoUrl'] as String?;
     final region = candidato['region'] as String? ?? '';
+    final id = candidato['id'] as String? ?? '';
+    final favCategory = favCategoryFromCandidato(candidato);
+    final isFav = ref.watch(favoritesProvider
+        .select((favs) => favs[favCategory]?.contains(id) ?? false));
 
     final partidoColor =
         AppColors.partidoColors[partido] ?? AppColors.partidoColors['default']!;
@@ -275,29 +290,33 @@ class CandidatoCard extends StatelessWidget {
                     const SizedBox(height: 3),
                     Row(
                       children: [
-                        if ((candidato['logoPartidoUrl'] as String?) != null)
-                          SizedBox(
-                            width: 20,
-                            height: 20,
-                            child: Stack(
-                              alignment: Alignment.center,
-                              children: [
-                                Container(
-                                  width: 8,
-                                  height: 8,
-                                  decoration: BoxDecoration(
-                                    color: partidoColor,
-                                    shape: BoxShape.circle,
-                                  ),
+                        if ((candidato['simboloPartidoUrl'] as String?)
+                                ?.isNotEmpty ==
+                            true)
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(4),
+                            child: CachedNetworkImage(
+                              imageUrl:
+                                  candidato['simboloPartidoUrl'] as String,
+                              width: 20,
+                              height: 20,
+                              fit: BoxFit.contain,
+                              placeholder: (_, __) => Container(
+                                width: 8,
+                                height: 8,
+                                decoration: BoxDecoration(
+                                  color: partidoColor,
+                                  shape: BoxShape.circle,
                                 ),
-                                SvgPicture.network(
-                                  candidato['logoPartidoUrl'] as String,
-                                  width: 20,
-                                  height: 20,
-                                  fit: BoxFit.contain,
-                                  placeholderBuilder: (_) => const SizedBox(),
+                              ),
+                              errorWidget: (_, __, ___) => Container(
+                                width: 8,
+                                height: 8,
+                                decoration: BoxDecoration(
+                                  color: partidoColor,
+                                  shape: BoxShape.circle,
                                 ),
-                              ],
+                              ),
                             ),
                           )
                         else
@@ -363,9 +382,20 @@ class CandidatoCard extends StatelessWidget {
                 ),
               ],
 
-              const SizedBox(width: 4),
-              const Icon(Icons.chevron_right,
-                  size: 18, color: AppColors.textHint),
+              // Favorite toggle
+              GestureDetector(
+                onTap: () => ref
+                    .read(favoritesProvider.notifier)
+                    .toggle(favCategory, id),
+                child: Padding(
+                  padding: const EdgeInsets.all(4),
+                  child: Icon(
+                    isFav ? Icons.favorite : Icons.favorite_border,
+                    size: 20,
+                    color: isFav ? Colors.red : AppColors.textHint,
+                  ),
+                ),
+              ),
             ],
           ),
         ),

@@ -26,6 +26,7 @@ class AppL10n {
   final String navMiVoto;
   final String navEncuestas;
   final String navNoticias;
+  final String navFavoritos;
 
   // ── Home ──────────────────────────────────────────────────────────────────
   final String heroBadge;
@@ -196,6 +197,7 @@ class AppL10n {
     required this.navMiVoto,
     required this.navEncuestas,
     required this.navNoticias,
+    required this.navFavoritos,
     required this.heroBadge,
     required this.heroTitle,
     required this.heroSubtitle,
@@ -347,6 +349,7 @@ class AppL10n {
     navMiVoto: 'Mi Voto',
     navEncuestas: 'Encuestas',
     navNoticias: 'Noticias',
+    navFavoritos: 'Favoritos',
     heroBadge: '🗳️ Elecciones Generales 2026',
     heroTitle: 'Tu voto,\nbien informado.',
     heroSubtitle:
@@ -543,6 +546,7 @@ class AppL10n {
     navMiVoto: 'Ñoqapa Votuy',
     navEncuestas: 'Tapukuykuna',
     navNoticias: 'Willakuykuna',
+    navFavoritos: 'Munasqakuna',
     heroBadge: '🗳️ 2026 Hatun Akllakuy',
     heroTitle: 'Qampa votuyki,\nallinmi yachaqasqa.',
     heroSubtitle:
@@ -736,6 +740,7 @@ class AppL10n {
     navMiVoto: 'My Vote',
     navEncuestas: 'Polls',
     navNoticias: 'News',
+    navFavoritos: 'Favorites',
     heroBadge: '🗳️ General Elections 2026',
     heroTitle: 'Your vote,\nwell informed.',
     heroSubtitle:

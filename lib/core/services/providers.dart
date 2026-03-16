@@ -10,7 +10,6 @@ import '../services/jne_api_service.dart';
 import '../services/encuestas_remote_service.dart';
 import '../services/pdf_service.dart';
 import '../services/supabase_service.dart';
-import '../services/cors_proxy.dart';
 
 // ─── Servicios singleton ─────────────────────────────────────────────────────
 
@@ -1057,27 +1056,7 @@ final topCandidatosPorEncuestaProvider =
   enriched.sort((a, b) => (b['promedioEncuesta'] as double)
       .compareTo(a['promedioEncuesta'] as double));
 
-  // Enrich with partido logo URLs
-  final logosList = await ref.watch(partidosPoliticosProvider(1).future);
-  final logoMap = <String, String>{};
-  for (final item in logosList) {
-    final raw = item['TXORGANIZACIONPOLITICA'] as String? ?? '';
-    final normalized = raw
-        .split(' ')
-        .map((w) => w.isEmpty
-            ? w
-            : '${w[0].toUpperCase()}${w.substring(1).toLowerCase()}')
-        .join(' ');
-    final url = item['TXURLORGANIZACIONPOLITICA'] as String? ?? '';
-    if (normalized.isNotEmpty && url.isNotEmpty)
-      logoMap[normalized] = CorsProxy.imageUrl(url);
-  }
-
-  return enriched.map((c) {
-    final partido = c['partido'] as String? ?? '';
-    final logo = logoMap[partido];
-    return logo != null ? {...c, 'logoPartidoUrl': logo} : c;
-  }).toList();
+  return enriched;
 });
 
 // ─── Tab de elección seleccionada en Inicio ──────────────────────────────────

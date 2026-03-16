@@ -1,5 +1,47 @@
 [
   {
+    "id": "datum_2026_03_16",
+    "empresa": "Datum",
+    "metodologia": "Encuesta nacional urbano-rural",
+    "muestreo": 1300,
+    "margenError": 2.5,
+    "fechaPublicacion": "2026-03-16",
+    "urlFuente": "https://rpp.pe/politica/elecciones/encuesta-datum-estos-son-los-candidatos-que-lideran-las-preferencias-electorales-para-la-presidencia-de-la-republica-noticia-1680206",
+    "esCertificada": true,
+    "resultados": [
+      {"candidatoId": "lopez_aliaga", "nombreCandidato": "Rafael López Aliaga", "partido": "Renovación Popular", "porcentaje": 11.4},
+      {"candidatoId": "fujimori", "nombreCandidato": "Keiko Fujimori", "partido": "Fuerza Popular", "porcentaje": 10.9},
+      {"candidatoId": "lopez_chau", "nombreCandidato": "Alfonso López-Chau", "partido": "Ahora Nación", "porcentaje": 6.5},
+      {"candidatoId": "grozo", "nombreCandidato": "Wolfgang Grozo", "partido": "Integridad Democrática", "porcentaje": 5.1},
+      {"candidatoId": "alvarez", "nombreCandidato": "Carlos Álvarez", "partido": "País para Todos", "porcentaje": 4.0},
+      {"candidatoId": "acuna", "nombreCandidato": "César Acuña", "partido": "Alianza para el Progreso", "porcentaje": 3.8},
+      {"candidatoId": "lescano", "nombreCandidato": "Yonhy Lescano", "partido": "Cooperación Popular", "porcentaje": 3.2},
+      {"candidatoId": "jorge_nieto", "nombreCandidato": "Jorge Nieto", "partido": "Partido del Buen Gobierno", "porcentaje": 2.5},
+      {"candidatoId": "vizcarra", "nombreCandidato": "Mario Vizcarra", "partido": "Perú Primero", "porcentaje": 1.7},
+      {"candidatoId": "belmont", "nombreCandidato": "Ricardo Belmont", "partido": "Partido Cívico OBRAS", "porcentaje": 1.6},
+      {"candidatoId": "forsyth", "nombreCandidato": "George Forsyth", "partido": "Somos Perú", "porcentaje": 1.5},
+      {"candidatoId": "sanchez", "nombreCandidato": "Roberto Sánchez", "partido": "Juntos por el Perú", "porcentaje": 1.4}
+    ]
+  },
+  {
+    "id": "cpi_2026_03_07",
+    "empresa": "CPI",
+    "metodologia": "Encuesta urbano-rural",
+    "muestreo": 1300,
+    "margenError": 2.7,
+    "fechaPublicacion": "2026-03-07",
+    "urlFuente": "https://rpp.pe/politica/elecciones/cpi-conoce-quienes-lideran-la-intencion-de-voto-en-las-elecciones-presidenciales-a-menos-de-dos-meses-de-los-comicios-noticia-1678994",
+    "esCertificada": true,
+    "resultados": [
+      {"candidatoId": "lopez_aliaga", "nombreCandidato": "Rafael López Aliaga", "partido": "Renovación Popular", "porcentaje": 12.7},
+      {"candidatoId": "fujimori", "nombreCandidato": "Keiko Fujimori", "partido": "Fuerza Popular", "porcentaje": 8.0},
+      {"candidatoId": "lopez_chau", "nombreCandidato": "Alfonso López-Chau", "partido": "Ahora Nación", "porcentaje": 5.6},
+      {"candidatoId": "alvarez", "nombreCandidato": "Carlos Álvarez", "partido": "País para Todos", "porcentaje": 5.6},
+      {"candidatoId": "grozo", "nombreCandidato": "Wolfgang Grozo", "partido": "Integridad Democrática", "porcentaje": 4.8},
+      {"candidatoId": "acuna", "nombreCandidato": "César Acuña", "partido": "Alianza para el Progreso", "porcentaje": 3.4}
+    ]
+  },
+  {
     "id": "ipsos_2026_03_11",
     "empresa": "Ipsos Perú",
     "metodologia": "Encuesta urbano-rural / Primer simulacro de votación",

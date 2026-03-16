@@ -25,6 +25,8 @@ class AppNavigation extends ConsumerWidget {
           '/encuestas'),
       _NavItem(Icons.newspaper_outlined, Icons.newspaper, t.navNoticias,
           '/noticias'),
+      _NavItem(
+          Icons.favorite_border, Icons.favorite, t.navFavoritos, '/favoritos'),
     ];
 
     return Scaffold(
@@ -41,6 +43,10 @@ class AppNavigation extends ConsumerWidget {
             index,
             initialLocation: index == navigationShell.currentIndex,
           ),
+          type: BottomNavigationBarType.fixed,
+          selectedFontSize: 10,
+          unselectedFontSize: 9,
+          iconSize: 22,
           items: items
               .map((item) => BottomNavigationBarItem(
                     icon: Icon(item.icon),

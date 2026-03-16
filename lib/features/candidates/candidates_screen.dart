@@ -445,35 +445,6 @@ class _CandidatosListState extends ConsumerState<_CandidatosList> {
           filtered.where((c) => c['partido'] == widget.filtroPartido).toList();
     }
 
-    // Enrich candidates with partido logo URLs
-    final logosAsync = ref.watch(partidosPoliticosProvider(1));
-    final logoMap = logosAsync.when(
-      data: (list) {
-        final m = <String, String>{};
-        for (final item in list) {
-          final raw = item['TXORGANIZACIONPOLITICA'] as String? ?? '';
-          final n = raw
-              .split(' ')
-              .map((w) => w.isEmpty
-                  ? w
-                  : '${w[0].toUpperCase()}${w.substring(1).toLowerCase()}')
-              .join(' ');
-          final u = item['TXURLORGANIZACIONPOLITICA'] as String? ?? '';
-          if (n.isNotEmpty && u.isNotEmpty) m[n] = CorsProxy.imageUrl(u);
-        }
-        return m;
-      },
-      loading: () => <String, String>{},
-      error: (_, __) => <String, String>{},
-    );
-    if (logoMap.isNotEmpty) {
-      filtered = filtered.map((c) {
-        final partido = c['partido'] as String? ?? '';
-        final logo = logoMap[partido];
-        return logo != null ? {...c, 'logoPartidoUrl': logo} : c;
-      }).toList();
-    }
-
     return RefreshIndicator(
       onRefresh: _onRefresh,
       child: CustomScrollView(
