@@ -55,7 +55,21 @@ CREATE INDEX IF NOT EXISTS idx_analytics_created_at
   ON analytics_events (created_at DESC);
 
 -- ─────────────────────────────────────────────────────────────────────────────
---  5. Row Level Security (RLS) — acceso anónimo via anon key
+--  5. Caché de análisis IA por candidato (compartido entre todos los usuarios)
+-- ─────────────────────────────────────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS ai_analysis_cache (
+  candidato_key  TEXT        PRIMARY KEY,   -- nombre normalizado del candidato
+  analysis_data  JSONB       NOT NULL DEFAULT '{}',
+  version        INTEGER     NOT NULL DEFAULT 1,
+  created_at     TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at     TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_ai_analysis_updated
+  ON ai_analysis_cache (updated_at DESC);
+
+-- ─────────────────────────────────────────────────────────────────────────────
+--  6. Row Level Security (RLS) — acceso anónimo via anon key
 -- ─────────────────────────────────────────────────────────────────────────────
 
 -- user_preferences: cada sesión solo puede leer/escribir sus propias preferencias
@@ -96,8 +110,20 @@ ALTER TABLE analytics_events ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "anon_insert_events" ON analytics_events
   FOR INSERT WITH CHECK (true);
 
+-- ai_analysis_cache: lectura pública, escritura anónima
+ALTER TABLE ai_analysis_cache ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "public_read_ai_cache" ON ai_analysis_cache
+  FOR SELECT USING (true);
+
+CREATE POLICY "anon_write_ai_cache" ON ai_analysis_cache
+  FOR INSERT WITH CHECK (true);
+
+CREATE POLICY "anon_update_ai_cache" ON ai_analysis_cache
+  FOR UPDATE USING (true);
+
 -- ─────────────────────────────────────────────────────────────────────────────
---  6. Función de limpieza automática (opcional, ejecutar via pg_cron)
+--  7. Función de limpieza automática (opcional, ejecutar via pg_cron)
 -- ─────────────────────────────────────────────────────────────────────────────
 -- Borrar eventos de analytics con más de 90 días
 -- SELECT cron.schedule('cleanup-analytics', '0 3 * * *',

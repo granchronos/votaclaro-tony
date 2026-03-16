@@ -164,8 +164,8 @@ class DebateData {
     // If exact normalized match failed, try contains-based match
     if (result.isEmpty) {
       for (var i = 0; i < debates.length; i++) {
-        if (debates[i].participants.any(
-            (p) => _normalize(p).contains(norm) || norm.contains(_normalize(p)))) {
+        if (debates[i].participants.any((p) =>
+            _normalize(p).contains(norm) || norm.contains(_normalize(p)))) {
           result.add(i);
         }
       }
@@ -176,14 +176,18 @@ class DebateData {
   /// Strips accents/diacritics and lowercases for comparison.
   static String _normalize(String s) {
     const _accents = 'àáâãäåèéêëìíîïòóôõöùúûüýñçÀÁÂÃÄÅÈÉÊËÌÍÎÏÒÓÔÕÖÙÚÛÜÝÑÇ';
-    const _plain   = 'aaaaaaeeeeiiiioooooouuuuynccaaaaaaeeeeiiiioooooouuuuyncc';
+    const _plain = 'aaaaaaeeeeiiiioooooouuuuynccaaaaaaeeeeiiiioooooouuuuyncc';
     final buf = StringBuffer();
     for (final ch in s.toLowerCase().runes) {
       final c = String.fromCharCode(ch);
       final idx = _accents.indexOf(c);
       buf.write(idx >= 0 ? _plain[idx] : c);
     }
-    return buf.toString().replaceAll(RegExp(r'[^a-z0-9 ]'), '').replaceAll(RegExp(r'\s+'), ' ').trim();
+    return buf
+        .toString()
+        .replaceAll(RegExp(r'[^a-z0-9 ]'), '')
+        .replaceAll(RegExp(r'\s+'), ' ')
+        .trim();
   }
 }
 

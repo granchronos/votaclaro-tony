@@ -16,15 +16,15 @@ class _VotaClaroState extends ConsumerState<VotaClaro> {
   @override
   void initState() {
     super.initState();
-    _initSupabase();
     _loadSavedTheme();
-    _startBackgroundSync();
+    _initAndSync();
   }
 
-  /// Verifica conexión con Supabase al arrancar.
-  Future<void> _initSupabase() async {
+  /// Inicializa Supabase primero, luego arranca la sincronización en segundo plano.
+  Future<void> _initAndSync() async {
     final supabase = ref.read(supabaseServiceProvider);
     await supabase.healthCheck();
+    _startBackgroundSync();
   }
 
   /// Carga el tema guardado desde Supabase/SharedPreferences al arrancar.
@@ -51,6 +51,10 @@ class _VotaClaroState extends ConsumerState<VotaClaro> {
       supabase.scheduleBgSync(() async {
         // Pre-warm: fetch presidential candidates to populate cache
         await ref.read(candidatosPresidenteProvider.future);
+
+        // Pre-warm IA: genera análisis de a pocos para no quemar la quota
+        // (1 candidato cada 2 min en background — no bloquea la app)
+        warmUpAllAiAnalysis(ref);
       });
     } catch (_) {
       // Sync failed silently — app works offline with local cache

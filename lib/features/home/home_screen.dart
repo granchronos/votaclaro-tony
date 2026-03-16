@@ -432,8 +432,7 @@ class _DebateCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+              padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
               decoration: BoxDecoration(
                 color: phaseColor.withOpacity(0.12),
                 borderRadius: BorderRadius.circular(6),
@@ -729,10 +728,9 @@ class _ParticipantTile extends ConsumerWidget {
     final partyUpper = partyName.toUpperCase();
     candidatos.whenData((list) {
       for (final c in list) {
-        final pOrig = (c['partidoOriginal'] as String? ??
-                c['partido'] as String? ??
-                '')
-            .toUpperCase();
+        final pOrig =
+            (c['partidoOriginal'] as String? ?? c['partido'] as String? ?? '')
+                .toUpperCase();
         if (pOrig == partyUpper ||
             pOrig.contains(partyUpper) ||
             partyUpper.contains(pOrig)) {

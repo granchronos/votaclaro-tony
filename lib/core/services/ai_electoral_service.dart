@@ -30,8 +30,8 @@ class AiElectoralService {
 
   /// Supabase Edge Function que actúa como proxy seguro de IA en web.
   /// Las API keys de Gemini/Claude viven en Supabase Vault, nunca en el cliente.
-  static const String _aiProxyEndpoint =
-      '${String.fromEnvironment('SUPABASE_URL', defaultValue: '')}/functions/v1/ai-proxy';
+  static final String _aiProxyEndpoint =
+      '${const String.fromEnvironment('SUPABASE_URL', defaultValue: '')}/functions/v1/ai-proxy';
   static const String _supabaseAnonKey =
       String.fromEnvironment('SUPABASE_ANON_KEY', defaultValue: '');
 
@@ -74,47 +74,57 @@ REGLAS DE ORO:
             : 'parlamentario andino';
 
     final prompt = '''
-Genera el perfil completo del candidato $tipoLabel "$nombreOId" para Elecciones 2026 Perú.
+Genera el perfil COMPLETO y DETALLADO del candidato $tipoLabel "$nombreOId" para Elecciones Generales Perú 2026.
+
+INSTRUCCIONES CLAVE:
+- Incluye AL MENOS 5 propuestas principales de su plan de gobierno.
+- Cada propuesta debe tener descripción concisa pero sustancial (2-3 oraciones).
+- Los pros y contras deben ser ESPECÍFICOS al candidato (mínimo 4 cada uno), no genéricos.
+- El resumenPerfil debe ser un párrafo denso con trayectoria política, cargos previos, logros y controversias.
+- El analisisPredictivo debe comparar con un político peruano similar del pasado.
+- Si no tienes dato verificado, usa "SIN_DATO_VERIFICADO" — NUNCA inventes cifras.
+- Las fuentes deben ser reales: JNE, ONPE, Datum, Ipsos, CPI, medios serios.
+
 Responde ÚNICAMENTE en este JSON (sin markdown, sin texto extra):
 
 {
   "nombreCompleto": "",
   "partido": "",
   "porcentajeEncuesta": 0.0,
-  "fuenteEncuesta": "",
+  "fuenteEncuesta": "[Encuestadora, mes año]",
   "edad": 0,
   "profesion": "",
   "region": "",
-  "resumenPerfil": "",
+  "resumenPerfil": "Párrafo completo: trayectoria, cargos, logros, controversias, posición ideológica.",
   "patrimonio": {
     "totalBienes": 0.0,
     "totalDeudas": 0.0,
     "ingresoAnual": 0.0,
-    "descripcionBienes": "",
+    "descripcionBienes": "Detalle de inmuebles, vehículos, inversiones declaradas.",
     "fuenteJNE": "",
     "fechaDeclaracion": ""
   },
   "propuestas": [
     {
       "numero": 1,
-      "area": "",
-      "descripcion": "",
+      "area": "Economía|Seguridad|Salud|Educación|Medio Ambiente|Infraestructura|Anticorrupción|Social",
+      "descripcion": "Descripción concisa de la propuesta (2-3 oraciones con cifras si aplica).",
       "viabilidad": "alta|media|baja",
       "esReciclada": false,
-      "referenciaPropuestaAnterior": null,
-      "fuenteVerificacion": ""
+      "referenciaPropuestaAnterior": "Si esReciclada=true: quién la propuso y cuándo",
+      "fuenteVerificacion": "[Plan de gobierno/declaración pública con fecha]"
     }
   ],
-  "pros": ["", "", ""],
-  "contras": ["", "", ""],
+  "pros": ["Fortaleza específica 1 con contexto", "Fortaleza 2", "Fortaleza 3", "Fortaleza 4"],
+  "contras": ["Debilidad específica 1 con contexto", "Debilidad 2", "Debilidad 3", "Debilidad 4"],
   "analisisPredictivo": {
-    "comparadoCon": "",
-    "similitudes": ["", ""],
-    "resultadoHistorico": "",
+    "comparadoCon": "Político peruano similar",
+    "similitudes": ["Similitud 1", "Similitud 2"],
+    "resultadoHistorico": "Qué pasó con ese político similar — éxito o fracaso y por qué.",
     "probabilidadCumplimiento": 0.0,
     "riesgoCorrupcion": "bajo|medio|alto",
-    "justificacionRiesgo": "",
-    "fuenteAnalisis": ""
+    "justificacionRiesgo": "Razones concretas basadas en antecedentes, entorno partidario, declaraciones juradas.",
+    "fuenteAnalisis": "[Fuentes verificables]"
   }${tipo != TipoCandidatura.presidente ? ''',
   "historialLegislativo": {
     "proyectosPresente": 0,
@@ -202,50 +212,103 @@ Responde ÚNICAMENTE en este JSON array:
 
   // ─── HTTP Core ───────────────────────────────────────────────────────────────
 
+  /// Modelos Gemini a intentar en orden de prioridad (más quota → menos quota).
+  /// gemini-2.0-flash-lite: 1500 RPD free tier
+  /// gemini-2.0-flash: 500 RPD free tier
+  /// gemini-flash-latest: 20 RPD free tier (resuelve a gemini-3-flash)
+  static const _geminiModels = [
+    'gemini-2.0-flash-lite',
+    'gemini-2.0-flash',
+    'gemini-flash-latest',
+  ];
+
   Future<Map<String, dynamic>> _query(String userMessage) async {
-    try {
-      // En web: todas las llamadas de IA van por la Edge Function de Supabase.
-      // Las API keys viven en Supabase Vault — nunca en el bundle JavaScript.
-      if (kIsWeb) {
-        return await _queryViaProxy(userMessage);
-      }
-
-      // En mobile: usar API keys cargadas desde .env (dotenv)
-      // Respetar el proveedor seleccionado por el usuario
-      if (activeProvider == AiProvider.gemini) {
-        final key = dotenv.env['GEMINI_API_KEY'] ?? '';
-        final model = dotenv.env['GEMINI_MODEL'] ?? 'gemini-flash-latest';
-        if (key.isNotEmpty && key != 'your_gemini_api_key_here') {
-          return await _queryGemini(userMessage, key, model);
-        }
-      } else {
-        final key = dotenv.env['CLAUDE_API_KEY'] ?? '';
-        // Free tier usa claude-3-haiku-20240307 (el más barato / free tier)
-        final model = dotenv.env['CLAUDE_MODEL'] ?? 'claude-3-haiku-20240307';
-        if (key.isNotEmpty && key != 'your_claude_api_key_here') {
-          return await _queryClaude(userMessage, key, model);
-        }
-      }
-
-      // Fallback automático al otro proveedor
-      final geminiKey = dotenv.env['GEMINI_API_KEY'] ?? '';
-      if (geminiKey.isNotEmpty && geminiKey != 'your_gemini_api_key_here') {
-        return await _queryGemini(
-            userMessage, geminiKey, 'gemini-flash-latest');
-      }
-
-      // Último recurso: OpenAI
-      final openaiKey = dotenv.env['OPENAI_API_KEY'] ?? '';
-      if (openaiKey.isNotEmpty && openaiKey != 'your_openai_api_key_here') {
-        return await _queryOpenAI(userMessage, openaiKey);
-      }
-
-      _logger.w('No API key configured — returning mock data');
-      return _mockResponse(userMessage);
-    } catch (e) {
-      _logger.e('AI query failed: $e');
-      return {'error': e.toString(), 'data': null};
+    if (kIsWeb) {
+      return await _queryViaProxy(userMessage);
     }
+
+    final geminiKey = dotenv.env['GEMINI_API_KEY'] ?? '';
+    final claudeKey = dotenv.env['CLAUDE_API_KEY'] ?? '';
+    final openaiKey = dotenv.env['OPENAI_API_KEY'] ?? '';
+
+    // 1. Intentar cada modelo Gemini en orden (más quota primero)
+    if (geminiKey.isNotEmpty && geminiKey != 'your_gemini_api_key_here') {
+      for (final model in _geminiModels) {
+        try {
+          final result = await _queryGemini(userMessage, geminiKey, model);
+          _logger.i('✅ Gemini $model respondió correctamente');
+          return result;
+        } on DioException catch (e) {
+          final code = e.response?.statusCode ?? 0;
+          if (code == 429 || code == 503) {
+            // Verificar si es rate-limit por minuto (esperar) o por día (saltar)
+            final body = e.response?.data;
+            final retryDelay = _extractRetryDelay(body);
+            if (retryDelay != null && retryDelay.inSeconds <= 90) {
+              // Rate-limit por minuto — vale la pena esperar
+              _logger.w(
+                  'Gemini $model rate-limited, esperando ${retryDelay.inSeconds}s...');
+              await Future.delayed(retryDelay);
+              try {
+                return await _queryGemini(userMessage, geminiKey, model);
+              } catch (_) {
+                // Si falla de nuevo, probar siguiente modelo
+              }
+            }
+            _logger.w('Gemini $model agotado ($code), probando siguiente...');
+            continue;
+          }
+          if (code == 500) {
+            await Future.delayed(const Duration(seconds: 2));
+            try {
+              return await _queryGemini(userMessage, geminiKey, model);
+            } catch (_) {
+              continue;
+            }
+          }
+          _logger.e('Gemini $model error inesperado ($code)');
+          continue;
+        }
+      }
+    }
+
+    // 2. Fallback: Claude (Haiku — el más rápido y barato)
+    if (claudeKey.isNotEmpty && claudeKey != 'your_claude_api_key_here') {
+      final claudeModels = [
+        'claude-3-haiku-20240307',
+        'claude-3-5-haiku-20241022'
+      ];
+      for (final model in claudeModels) {
+        try {
+          final result = await _queryClaude(userMessage, claudeKey, model);
+          _logger.i('✅ Claude $model respondió correctamente');
+          return result;
+        } on DioException catch (e) {
+          final code = e.response?.statusCode ?? 0;
+          if (code == 429 || code == 529) {
+            _logger.w('Claude $model agotado ($code), probando siguiente...');
+            continue;
+          }
+          _logger.w('Claude $model falló ($code)');
+          break; // Error no-retryable (400 = créditos, 401 = auth)
+        }
+      }
+    }
+
+    // 3. Fallback: OpenAI (gpt-4o-mini — el más barato)
+    if (openaiKey.isNotEmpty && openaiKey != 'your_openai_api_key_here') {
+      final model = dotenv.env['OPENAI_MODEL'] ?? 'gpt-4o-mini';
+      try {
+        final result = await _queryOpenAI(userMessage, openaiKey, model);
+        _logger.i('✅ OpenAI $model respondió correctamente');
+        return result;
+      } on DioException catch (e) {
+        _logger.w('OpenAI $model falló: ${e.response?.statusCode}');
+      }
+    }
+
+    _logger.w('Todos los proveedores IA fallaron — sin datos');
+    return {'error': 'all_providers_exhausted', 'data': null};
   }
 
   Future<Map<String, dynamic>> _queryGemini(
@@ -319,6 +382,7 @@ Responde ÚNICAMENTE en este JSON array:
   Future<Map<String, dynamic>> _queryOpenAI(
     String message,
     String apiKey,
+    String model,
   ) async {
     final response = await _dio.post(
       _openaiEndpoint,
@@ -327,7 +391,7 @@ Responde ÚNICAMENTE en este JSON array:
         'Content-Type': 'application/json',
       }),
       data: jsonEncode({
-        'model': 'gpt-4o',
+        'model': model,
         'messages': [
           {'role': 'system', 'content': _systemPrompt},
           {'role': 'user', 'content': message},
@@ -367,7 +431,8 @@ Responde ÚNICAMENTE en este JSON array:
     return _parseJsonResponse(text);
   }
 
-  Map<String, dynamic> _parseJsonResponse(String content) {    try {
+  Map<String, dynamic> _parseJsonResponse(String content) {
+    try {
       // Limpiar posible markdown ```json ... ```
       String clean = content.trim();
       if (clean.startsWith('```')) {
@@ -384,6 +449,26 @@ Responde ÚNICAMENTE en este JSON array:
       _logger.e('JSON parse error: $e — raw: $content');
       return {'error': 'parse_error', 'raw': content, 'data': null};
     }
+  }
+
+  /// Extrae el retryDelay de una respuesta 429 de Gemini.
+  Duration? _extractRetryDelay(dynamic responseBody) {
+    try {
+      if (responseBody is! Map) return null;
+      final details = (responseBody['error'] as Map?)?['details'] as List?;
+      if (details == null) return null;
+      for (final detail in details) {
+        if (detail is Map && detail.containsKey('retryDelay')) {
+          final delayStr = detail['retryDelay'] as String? ?? '';
+          // Formato: "52s" o "44.939510061s"
+          final match = RegExp(r'(\d+)').firstMatch(delayStr);
+          if (match != null) {
+            return Duration(seconds: int.parse(match.group(1)!) + 1);
+          }
+        }
+      }
+    } catch (_) {}
+    return null;
   }
 
   /// Respuesta simulada para desarrollo sin API key

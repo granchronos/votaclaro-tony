@@ -1101,20 +1101,193 @@ final parsedPdfProvider = FutureProvider.autoDispose
 // ─── Análisis IA por candidato ────────────────────────────────────────────────
 
 /// Genera el análisis predictivo IA (pros, contras, viabilidad) para un candidato.
-/// Cacheado por sesión mediante autoDispose.family.
-/// Falla silenciosamente — el perfil siempre muestra datos JNE aunque la IA no responda.
+///
+/// Estrategia cache-first:
+/// 1. Busca en Supabase (compartido entre todos los usuarios — coherente)
+/// 2. Si hay caché válida (< 24h), la retorna inmediatamente
+/// 3. Si no hay caché, llama a la IA, guarda en Supabase y retorna
+/// 4. Si la caché tiene > 12h, retorna la caché pero refresca en segundo plano
+///
+/// Esto garantiza que todos los usuarios ven el mismo análisis y probabilidades.
 final aiAnalisisCandidatoProvider = FutureProvider.autoDispose
     .family<Map<String, dynamic>, String>((ref, nombre) async {
+  // Mantener vivo para que no se pierda al navegar
+  ref.keepAlive();
   if (nombre.isEmpty) return {};
+
+  final supa = ref.read(supabaseServiceProvider);
+
   try {
+    // 1. Intentar obtener del caché compartido de Supabase
+    final cached = await supa.getCachedAiAnalysis(nombre);
+    if (cached != null && _isValidAiData(cached)) {
+      debugPrint('[AI Provider] ✅ Cache hit para: $nombre');
+      // Refrescar en segundo plano si tiene más de 12 horas
+      _maybeRefreshInBackground(ref, nombre, supa);
+      return cached;
+    }
+
+    // 2. No hay caché válida — generar con IA
+    debugPrint('[AI Provider] 🤖 Generando con IA para: $nombre');
     final ai = ref.read(aiServiceProvider);
     final result = await ai.obtenerPerfilCandidato(nombreOId: nombre);
-    // El servicio retorna {data: {...}} o directamente el mapa
+    Map<String, dynamic> parsed;
     if (result.containsKey('data') && result['data'] is Map) {
-      return Map<String, dynamic>.from(result['data'] as Map);
+      parsed = Map<String, dynamic>.from(result['data'] as Map);
+    } else {
+      parsed = Map<String, dynamic>.from(result);
     }
-    return Map<String, dynamic>.from(result);
-  } catch (_) {
+
+    // 3. Guardar en Supabase para que todos los usuarios vean lo mismo
+    if (parsed.isNotEmpty &&
+        parsed['_mock'] != true &&
+        parsed['error'] == null) {
+      await supa.cacheAiAnalysis(nombre, parsed);
+      debugPrint('[AI Provider] ✅ Guardado en Supabase: $nombre');
+    }
+
+    return parsed;
+  } catch (e) {
+    debugPrint('[AI Provider] ❌ Error para $nombre: $e');
     return {};
   }
 });
+
+/// Valida que los datos cacheados son reales y útiles (no mock, no vacíos).
+bool _isValidAiData(Map<String, dynamic> data) {
+  if (data.isEmpty || data['_mock'] == true || data['error'] != null) {
+    return false;
+  }
+  // Debe tener al menos pros O contras O analisisPredictivo para ser útil
+  final pros = data['pros'] as List?;
+  final contras = data['contras'] as List?;
+  final analisis = data['analisisPredictivo'];
+  return (pros != null && pros.isNotEmpty) ||
+      (contras != null && contras.isNotEmpty) ||
+      analisis != null;
+}
+
+/// Refresca el análisis IA en segundo plano si la caché es vieja (> 12h).
+void _maybeRefreshInBackground(
+  AutoDisposeFutureProviderRef<Map<String, dynamic>> ref,
+  String nombre,
+  SupabaseService supa,
+) {
+  supa.getCachedAiAnalysis(nombre, maxAge: const Duration(hours: 12)).then(
+    (fresh) {
+      // Si la caché de 12h es null, significa que tiene entre 12-24h → refrescar
+      if (fresh == null) {
+        debugPrint('[AI BgRefresh] 🔄 Refrescando en bg: $nombre');
+        final ai = ref.read(aiServiceProvider);
+        ai.obtenerPerfilCandidato(nombreOId: nombre).then((result) {
+          Map<String, dynamic> parsed;
+          if (result.containsKey('data') && result['data'] is Map) {
+            parsed = Map<String, dynamic>.from(result['data'] as Map);
+          } else {
+            parsed = Map<String, dynamic>.from(result);
+          }
+          if (_isValidAiData(parsed)) {
+            supa.cacheAiAnalysis(nombre, parsed).then((_) {
+              debugPrint('[AI BgRefresh] ✅ Refrescado: $nombre');
+            });
+          }
+        }).catchError((e) {
+          debugPrint('[AI BgRefresh] ❌ Error refrescando $nombre: $e');
+        });
+      }
+    },
+  );
+}
+
+// ─── Warm-up: pre-generar análisis IA para TODOS los candidatos ──────────────
+
+/// Pre-genera y cachea el análisis IA para todos los candidatos presidenciales.
+///
+/// Recorre la lista completa, verifica si cada uno ya tiene caché válida en
+/// Supabase, y si no la tiene, genera el análisis con IA y lo guarda.
+/// Procesa de forma secuencial con pausas para evitar rate-limits de la API.
+Future<void> warmUpAllAiAnalysis(WidgetRef ref) async {
+  final supa = ref.read(supabaseServiceProvider);
+  final ai = ref.read(aiServiceProvider);
+
+  // 1. Obtener lista de candidatos presidenciales
+  List<Map<String, dynamic>> candidatos;
+  try {
+    candidatos = await ref.read(candidatosPresidenteProvider.future);
+  } catch (_) {
+    debugPrint('[WarmUp] ❌ No se pudo obtener candidatos presidenciales');
+    return;
+  }
+
+  if (candidatos.isEmpty) return;
+
+  // Contar cuántos ya tienen caché
+  int cached = 0;
+  int generated = 0;
+  int errors = 0;
+  final pendientes = <Map<String, dynamic>>[];
+
+  for (final candidato in candidatos) {
+    final nombre = candidato['nombreCompleto'] as String? ?? '';
+    if (nombre.isEmpty) continue;
+    try {
+      final existing = await supa.getCachedAiAnalysis(nombre);
+      if (existing != null && _isValidAiData(existing)) {
+        cached++;
+      } else {
+        pendientes.add(candidato);
+      }
+    } catch (_) {
+      pendientes.add(candidato);
+    }
+  }
+
+  debugPrint(
+      '[WarmUp] 🚀 Warm-up: $cached ya cacheados, ${pendientes.length} pendientes');
+  if (pendientes.isEmpty) {
+    debugPrint('[WarmUp] ✅ Todos los candidatos ya tienen análisis cacheado');
+    return;
+  }
+
+  // Generar de a poco: 1 cada ~90s para no quemar la quota de Gemini free tier
+  // Gemini free tier: ~1500 RPD para 2.0-flash-lite, pero con límite por minuto
+  for (final candidato in pendientes) {
+    final nombre = candidato['nombreCompleto'] as String? ?? '';
+
+    try {
+      debugPrint(
+          '[WarmUp] 🤖 Generando (${generated + 1}/${pendientes.length}): $nombre');
+      final result = await ai.obtenerPerfilCandidato(nombreOId: nombre);
+      Map<String, dynamic> parsed;
+      if (result.containsKey('data') && result['data'] is Map) {
+        parsed = Map<String, dynamic>.from(result['data'] as Map);
+      } else {
+        parsed = Map<String, dynamic>.from(result);
+      }
+
+      if (_isValidAiData(parsed)) {
+        await supa.cacheAiAnalysis(nombre, parsed);
+        generated++;
+        debugPrint(
+            '[WarmUp] ✅ Cacheado: $nombre ($generated/${pendientes.length})');
+      } else {
+        errors++;
+        debugPrint('[WarmUp] ⚠️ Inválido: $nombre (API saturada?)');
+        // Si no se pudo generar, esperar más
+        await Future.delayed(const Duration(seconds: 120));
+        continue;
+      }
+
+      // Esperar 90s entre generaciones para respetar rate-limit
+      await Future.delayed(const Duration(seconds: 90));
+    } catch (e) {
+      errors++;
+      debugPrint('[WarmUp] ❌ Error: $nombre ($e)');
+      // Pausa larga tras error — probablemente rate-limit
+      await Future.delayed(const Duration(seconds: 120));
+    }
+  }
+
+  debugPrint(
+      '[WarmUp] 🏁 Completado: $generated generados, $cached ya cacheados, $errors errores');
+}

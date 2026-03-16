@@ -362,8 +362,7 @@ class _HeaderBackground extends StatelessWidget {
 class _DebateSection extends ConsumerWidget {
   final String partido;
   final String partidoOriginal;
-  const _DebateSection(
-      {required this.partido, required this.partidoOriginal});
+  const _DebateSection({required this.partido, required this.partidoOriginal});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

@@ -23,10 +23,7 @@ class SupabaseService {
   Future<bool> healthCheck() async {
     try {
       // Test: intentar leer de user_preferences (tabla más simple)
-      await _client
-          .from('user_preferences')
-          .select('session_id')
-          .limit(1);
+      await _client.from('user_preferences').select('session_id').limit(1);
       _isReady = true;
       debugPrint('[Supabase] ✅ Conectado — tablas OK');
       return true;
@@ -34,7 +31,8 @@ class SupabaseService {
       _isReady = false;
       debugPrint('[Supabase] ❌ No conectado: $e');
       debugPrint('[Supabase] ⚠️ La app funcionará con caché local únicamente.');
-      debugPrint('[Supabase] 💡 Crea las tablas en: https://supabase.com/dashboard/project/efbrpoustizkyldlqoit/sql');
+      debugPrint(
+          '[Supabase] 💡 Crea las tablas en: https://supabase.com/dashboard/project/efbrpoustizkyldlqoit/sql');
       return false;
     }
   }
@@ -299,4 +297,68 @@ class SupabaseService {
       trackEvent('simulator_vote', properties: {
         'candidato': candidatoNombre,
       });
+
+  // ─────────────────────────────────────────────────────────────────
+  //  Caché de análisis IA
+  // ─────────────────────────────────────────────────────────────────
+
+  /// Normaliza el nombre del candidato para usarlo como clave de caché.
+  String _normalizeKey(String nombre) =>
+      nombre.trim().toLowerCase().replaceAll(RegExp(r'\s+'), '_');
+
+  /// Retorna el análisis IA cacheado para un candidato.
+  /// Retorna null si no hay caché o está vencida.
+  Future<Map<String, dynamic>?> getCachedAiAnalysis(
+    String candidatoNombre, {
+    Duration maxAge = const Duration(hours: 24),
+  }) async {
+    if (!_isReady) {
+      debugPrint(
+          '[Supabase] ⚠️ getCachedAiAnalysis: _isReady=false, Supabase no inicializado');
+      return null;
+    }
+    try {
+      final key = _normalizeKey(candidatoNombre);
+      final row = await _client
+          .from('ai_analysis_cache')
+          .select('analysis_data, updated_at')
+          .eq('candidato_key', key)
+          .maybeSingle();
+
+      if (row == null) return null;
+
+      final updatedAt = DateTime.tryParse(row['updated_at'] as String? ?? '');
+      if (updatedAt != null && DateTime.now().difference(updatedAt) > maxAge) {
+        return null; // Caché vencida—se regenerará
+      }
+
+      return row['analysis_data'] as Map<String, dynamic>?;
+    } catch (e) {
+      debugPrint('[Supabase] getCachedAiAnalysis error: $e');
+      return null;
+    }
+  }
+
+  /// Almacena el análisis IA en Supabase para que todos los usuarios lo vean igual.
+  Future<void> cacheAiAnalysis(
+    String candidatoNombre,
+    Map<String, dynamic> analysisData,
+  ) async {
+    if (analysisData.isEmpty || !_isReady) {
+      debugPrint(
+          '[Supabase] ⚠️ cacheAiAnalysis: no se puede guardar (empty=${analysisData.isEmpty}, ready=$_isReady)');
+      return;
+    }
+    try {
+      final key = _normalizeKey(candidatoNombre);
+      await _client.from('ai_analysis_cache').upsert({
+        'candidato_key': key,
+        'analysis_data': analysisData,
+        'updated_at': DateTime.now().toIso8601String(),
+      });
+      debugPrint('[Supabase] ✅ AI analysis cached for: $candidatoNombre');
+    } catch (e) {
+      debugPrint('[Supabase] cacheAiAnalysis error: $e');
+    }
+  }
 }
