@@ -310,7 +310,7 @@ class SupabaseService {
   /// Retorna null si no hay caché o está vencida.
   Future<Map<String, dynamic>?> getCachedAiAnalysis(
     String candidatoNombre, {
-    Duration maxAge = const Duration(hours: 24),
+    Duration maxAge = const Duration(days: 7),
   }) async {
     if (!_isReady) {
       debugPrint(

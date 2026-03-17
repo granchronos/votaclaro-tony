@@ -1167,15 +1167,15 @@ bool _isValidAiData(Map<String, dynamic> data) {
       analisis != null;
 }
 
-/// Refresca el análisis IA en segundo plano si la caché es vieja (> 12h).
+/// Refresca el análisis IA en segundo plano si la caché es vieja (> 5 días).
 void _maybeRefreshInBackground(
   AutoDisposeFutureProviderRef<Map<String, dynamic>> ref,
   String nombre,
   SupabaseService supa,
 ) {
-  supa.getCachedAiAnalysis(nombre, maxAge: const Duration(hours: 12)).then(
+  supa.getCachedAiAnalysis(nombre, maxAge: const Duration(days: 5)).then(
     (fresh) {
-      // Si la caché de 12h es null, significa que tiene entre 12-24h → refrescar
+      // Si la caché de 5 días es null, significa que tiene entre 5-7 días → refrescar
       if (fresh == null) {
         debugPrint('[AI BgRefresh] 🔄 Refrescando en bg: $nombre');
         final ai = ref.read(aiServiceProvider);
