@@ -48,6 +48,7 @@ class _NoticiasScreenState extends ConsumerState<NoticiasScreen>
       appBar: AppBar(
         title: Text(t.noticiasTitle),
         actions: [
+          const FontSizeAdjuster(),
           const LanguageSelectorButton(),
           IconButton(
             icon: const Icon(Icons.refresh),

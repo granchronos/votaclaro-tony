@@ -5,6 +5,7 @@ import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_strings_qu.dart';
 import '../../core/models/candidato.dart';
 import '../../core/services/favorites_service.dart';
+import '../../core/services/providers.dart';
 
 /// Badge de semáforo de viabilidad 🟢🟡🔴
 class ViabilidadBadge extends StatelessWidget {
@@ -720,6 +721,71 @@ class LanguageSelectorButton extends ConsumerWidget {
           ),
         );
       }).toList(),
+    );
+  }
+}
+
+// ─── Font size adjuster (Aa+ / Aa-) ─────────────────────────────────────────
+
+/// Compact AppBar action that lets users increase or decrease font scale.
+class FontSizeAdjuster extends ConsumerWidget {
+  const FontSizeAdjuster({super.key});
+
+  static const _min = 0.85;
+  static const _max = 1.5;
+  static const _step = 0.1;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final scale = ref.watch(fontScaleProvider);
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        _ScaleButton(
+          icon: Icons.text_decrease,
+          tooltip: 'Aa−',
+          onTap: scale > _min
+              ? () => ref.read(fontScaleProvider.notifier).state =
+                  (scale - _step).clamp(_min, _max)
+              : null,
+        ),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 2),
+          child: Text(
+            '${(scale * 100).round()}%',
+            style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w600),
+          ),
+        ),
+        _ScaleButton(
+          icon: Icons.text_increase,
+          tooltip: 'Aa+',
+          onTap: scale < _max
+              ? () => ref.read(fontScaleProvider.notifier).state =
+                  (scale + _step).clamp(_min, _max)
+              : null,
+        ),
+      ],
+    );
+  }
+}
+
+class _ScaleButton extends StatelessWidget {
+  final IconData icon;
+  final String tooltip;
+  final VoidCallback? onTap;
+  const _ScaleButton({required this.icon, required this.tooltip, this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      borderRadius: BorderRadius.circular(16),
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.all(6),
+        child: Icon(icon,
+            size: 18,
+            color: onTap != null ? AppColors.primary : AppColors.textHint),
+      ),
     );
   }
 }

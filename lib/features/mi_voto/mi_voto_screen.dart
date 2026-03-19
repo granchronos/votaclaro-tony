@@ -20,6 +20,7 @@ class MiVotoScreen extends ConsumerWidget {
       appBar: AppBar(
         title: Text(t.miVotoTitle),
         actions: [
+          const FontSizeAdjuster(),
           const LanguageSelectorButton(),
           IconButton(
             icon: const Icon(Icons.how_to_vote_outlined),

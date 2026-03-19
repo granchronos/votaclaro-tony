@@ -46,6 +46,10 @@ final themeModeProvider = StateProvider<ThemeMode>((ref) {
   return ThemeMode.light;
 });
 
+/// Escala de fuente personalizada (1.0 = normal, 1.1 = 10% más grande, etc.)
+/// Rango permitido: 0.85 – 1.5
+final fontScaleProvider = StateProvider<double>((ref) => 1.0);
+
 // ─── Candidatos (todos desde API JNE Voto Informado) ─────────────────────────
 
 /// Candidatos presidenciales desde la API real del JNE.

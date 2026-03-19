@@ -38,7 +38,7 @@ class _ComoVotarScreenState extends ConsumerState<ComoVotarScreen>
     return Scaffold(
       appBar: AppBar(
         title: Text(t.comoVotarTitle),
-        actions: const [LanguageSelectorButton()],
+        actions: const [FontSizeAdjuster(), LanguageSelectorButton()],
         bottom: TabBar(
           controller: _tabs,
           indicatorColor: AppColors.primary,

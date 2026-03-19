@@ -90,12 +90,13 @@ class _VotaClaroState extends ConsumerState<VotaClaro> {
       themeMode: themeMode,
       routerConfig: appRouter,
       builder: (context, child) {
-        // Escala de texto limitada para evitar overflow en texto grande
+        // Escala de texto: combina escala del sistema con escala del usuario
+        final userScale = ref.watch(fontScaleProvider);
+        final sysScale = MediaQuery.of(context).textScaler.scale(1.0);
+        final combined = (sysScale * userScale).clamp(0.8, 1.8);
         return MediaQuery(
           data: MediaQuery.of(context).copyWith(
-            textScaler: TextScaler.linear(
-              MediaQuery.of(context).textScaler.scale(1.0).clamp(0.8, 1.3),
-            ),
+            textScaler: TextScaler.linear(combined),
           ),
           child: child!,
         );

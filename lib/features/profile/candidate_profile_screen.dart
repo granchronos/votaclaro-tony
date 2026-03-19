@@ -2084,6 +2084,7 @@ class _AnalisisElectoralSection extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final t = ref.watch(translationsProvider);
     final dimensiones = plan['dimensiones'] as Map<String, dynamic>? ?? {};
 
     // Análisis IA asíncrono — se superpone al análisis JNE cuando está disponible
@@ -2131,7 +2132,7 @@ class _AnalisisElectoralSection extends ConsumerWidget {
       parrafos.add(_AnalisisItem(
         icon: Icons.description_outlined,
         color: AppColors.primary,
-        titulo: 'Plan de Gobierno',
+        titulo: t.iaPlanGobierno,
         texto: '$primer presenta $total propuestas distribuidas en: '
             'Social ($social), Económica ($economica), Ambiental ($ambiental), '
             'Institucional ($institucional). '
@@ -2142,7 +2143,7 @@ class _AnalisisElectoralSection extends ConsumerWidget {
       parrafos.add(_AnalisisItem(
         icon: Icons.warning_amber_rounded,
         color: AppColors.inviable,
-        titulo: 'Plan de Gobierno',
+        titulo: t.iaPlanGobierno,
         texto:
             'No se encontraron propuestas en el plan de gobierno registrado ante el JNE.',
       ));
@@ -2157,7 +2158,7 @@ class _AnalisisElectoralSection extends ConsumerWidget {
     parrafos.add(_AnalisisItem(
       icon: Icons.person_outline,
       color: AppColors.accent,
-      titulo: 'Perfil',
+      titulo: t.iaPerfil,
       texto: detalles.isNotEmpty
           ? 'Cuenta con ${detalles.join(", ")}.'
           : 'No registra experiencia pública ni cargos de elección.',
@@ -2172,7 +2173,7 @@ class _AnalisisElectoralSection extends ConsumerWidget {
       parrafos.add(_AnalisisItem(
         icon: Icons.gavel,
         color: AppColors.inviable,
-        titulo: 'Alertas',
+        titulo: t.iaAlertas,
         texto:
             'Registra: ${alertas.join(", ")}. Es importante verificar la naturaleza de cada caso.',
       ));
@@ -2180,7 +2181,7 @@ class _AnalisisElectoralSection extends ConsumerWidget {
       parrafos.add(_AnalisisItem(
         icon: Icons.check_circle_outline,
         color: AppColors.viable,
-        titulo: 'Antecedentes',
+        titulo: t.iaAntecedentes,
         texto:
             'No registra sentencias penales, obligatorias ni renuncias a partidos políticos.',
       ));
@@ -2190,19 +2191,19 @@ class _AnalisisElectoralSection extends ConsumerWidget {
     String solidez;
     Color solidezColor;
     if (total >= 12) {
-      solidez = 'Alto';
+      solidez = t.iaSolidezAlto;
       solidezColor = AppColors.viable;
     } else if (total >= 6) {
-      solidez = 'Medio';
+      solidez = t.iaSolidezMedio;
       solidezColor = AppColors.doubtful;
     } else {
-      solidez = 'Bajo';
+      solidez = t.iaSolidezBajo;
       solidezColor = AppColors.inviable;
     }
 
     return _SectionCard(
       icon: '🤖',
-      title: 'Análisis Electoral VotaClaro',
+      title: t.iaAnalisisElectoral,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -2227,8 +2228,8 @@ class _AnalisisElectoralSection extends ConsumerWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text('Nivel de detalle del plan',
-                          style: TextStyle(
+                      Text(t.iaNivelDetalle,
+                          style: const TextStyle(
                               fontSize: 11,
                               color: AppColors.textSecondary,
                               fontWeight: FontWeight.w600)),
@@ -2240,7 +2241,7 @@ class _AnalisisElectoralSection extends ConsumerWidget {
                     ],
                   ),
                 ),
-                Text('$total propuestas',
+                Text('$total ${t.iaPropuestas}',
                     style: TextStyle(
                         fontSize: 12,
                         color: solidezColor,
@@ -2289,18 +2290,18 @@ class _AnalisisElectoralSection extends ConsumerWidget {
                 color: AppColors.primary.withOpacity(0.05),
                 borderRadius: BorderRadius.circular(10),
               ),
-              child: const Row(
+              child: Row(
                 children: [
-                  SizedBox(
+                  const SizedBox(
                     width: 14,
                     height: 14,
                     child: CircularProgressIndicator(strokeWidth: 2),
                   ),
-                  SizedBox(width: 10),
+                  const SizedBox(width: 10),
                   Text(
-                    'Generando análisis IA...',
-                    style:
-                        TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                    t.iaGenerando,
+                    style: const TextStyle(
+                        fontSize: 12, color: AppColors.textSecondary),
                   ),
                 ],
               ),
@@ -2320,12 +2321,12 @@ class _AnalisisElectoralSection extends ConsumerWidget {
                 children: [
                   if (pros.isNotEmpty) ...[
                     const Divider(height: 20),
-                    Row(children: const [
-                      Icon(Icons.thumb_up_outlined,
+                    Row(children: [
+                      const Icon(Icons.thumb_up_outlined,
                           size: 15, color: AppColors.viable),
-                      SizedBox(width: 6),
-                      Text('Fortalezas',
-                          style: TextStyle(
+                      const SizedBox(width: 6),
+                      Text(t.iaFortalezas,
+                          style: const TextStyle(
                               fontSize: 13,
                               fontWeight: FontWeight.w700,
                               color: AppColors.viable)),
@@ -2347,12 +2348,12 @@ class _AnalisisElectoralSection extends ConsumerWidget {
                   ],
                   if (contras.isNotEmpty) ...[
                     const SizedBox(height: 8),
-                    Row(children: const [
-                      Icon(Icons.thumb_down_outlined,
+                    Row(children: [
+                      const Icon(Icons.thumb_down_outlined,
                           size: 15, color: AppColors.inviable),
-                      SizedBox(width: 6),
-                      Text('Debilidades',
-                          style: TextStyle(
+                      const SizedBox(width: 6),
+                      Text(t.iaDebilidades,
+                          style: const TextStyle(
                               fontSize: 13,
                               fontWeight: FontWeight.w700,
                               color: AppColors.inviable)),
@@ -2385,13 +2386,13 @@ class _AnalisisElectoralSection extends ConsumerWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Row(
+                          Row(
                             children: [
-                              Icon(Icons.auto_graph,
+                              const Icon(Icons.auto_graph,
                                   size: 14, color: AppColors.primary),
-                              SizedBox(width: 6),
-                              Text('Análisis Predictivo IA',
-                                  style: TextStyle(
+                              const SizedBox(width: 6),
+                              Text(t.iaAnalisisPredictivo,
+                                  style: const TextStyle(
                                       fontSize: 12,
                                       fontWeight: FontWeight.w700,
                                       color: AppColors.primary)),
@@ -2400,7 +2401,7 @@ class _AnalisisElectoralSection extends ConsumerWidget {
                           const SizedBox(height: 6),
                           if (analisis['probabilidadCumplimiento'] != null)
                             Text(
-                              'Probabilidad de cumplimiento: ${analisis['probabilidadCumplimiento']}%',
+                              '${t.iaProbCumplimiento}: ${analisis['probabilidadCumplimiento']}%',
                               style: const TextStyle(fontSize: 12, height: 1.4),
                             ),
                           if (analisis['justificacionRiesgo'] != null &&
@@ -2432,15 +2433,15 @@ class _AnalisisElectoralSection extends ConsumerWidget {
               color: AppColors.surfaceVariant,
               borderRadius: BorderRadius.circular(8),
             ),
-            child: const Row(
+            child: Row(
               children: [
-                Icon(Icons.info_outline,
+                const Icon(Icons.info_outline,
                     size: 14, color: AppColors.textSecondary),
-                SizedBox(width: 6),
+                const SizedBox(width: 6),
                 Expanded(
                   child: Text(
-                    'Análisis generado automáticamente a partir de los datos oficiales del JNE. No constituye recomendación de voto.',
-                    style: TextStyle(
+                    t.iaDisclaimer,
+                    style: const TextStyle(
                         fontSize: 10,
                         color: AppColors.textSecondary,
                         fontStyle: FontStyle.italic),

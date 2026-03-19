@@ -41,7 +41,7 @@ class _CandidatosScreenState extends ConsumerState<CandidatosScreen>
     return Scaffold(
       appBar: AppBar(
         title: Text(t.candidatosTitle),
-        actions: [const LanguageSelectorButton()],
+        actions: [const FontSizeAdjuster(), const LanguageSelectorButton()],
         bottom: TabBar(
           controller: _tabController,
           tabs: [

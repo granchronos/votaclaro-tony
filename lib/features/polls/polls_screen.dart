@@ -19,6 +19,7 @@ class EncuestasScreen extends ConsumerWidget {
       appBar: AppBar(
         title: Text(t.encuestasTitle),
         actions: [
+          const FontSizeAdjuster(),
           const LanguageSelectorButton(),
           IconButton(
             icon: const Icon(Icons.refresh),
@@ -31,9 +32,8 @@ class EncuestasScreen extends ConsumerWidget {
         child: encuestasAsync.when(
           data: (list) {
             if (list.isEmpty) return Center(child: Text(t.sinDatos));
-            final daysOldSinceLatest = DateTime.now()
-                .difference(list.first.fechaPublicacion)
-                .inDays;
+            final daysOldSinceLatest =
+                DateTime.now().difference(list.first.fechaPublicacion).inDays;
             return ListView(
               padding: const EdgeInsets.only(bottom: 32),
               children: [
@@ -82,8 +82,7 @@ class _EncuestaCard extends StatelessWidget {
     // Sort results by descending percentage
     final resultados = List<ResultadoEncuesta>.from(encuesta.resultados)
       ..sort((a, b) => b.porcentaje.compareTo(a.porcentaje));
-    final daysOld =
-        DateTime.now().difference(encuesta.fechaPublicacion).inDays;
+    final daysOld = DateTime.now().difference(encuesta.fechaPublicacion).inDays;
 
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -260,8 +259,8 @@ class _DaysAgoBadge extends StatelessWidget {
       ),
       child: Text(
         label,
-        style: TextStyle(
-            fontSize: 10, color: color, fontWeight: FontWeight.w600),
+        style:
+            TextStyle(fontSize: 10, color: color, fontWeight: FontWeight.w600),
       ),
     );
   }

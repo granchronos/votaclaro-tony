@@ -45,6 +45,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           ],
         ),
         actions: [
+          const FontSizeAdjuster(),
           const ThemeModeSelector(),
           const LanguageSelectorButton(),
           IconButton(
@@ -61,7 +62,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         },
         child: ListView(
           children: [
-            const _HeroBanner(),
             const _DebatesBanner(),
             const NeutralidadBanner(),
             const _EleccionTabs(),
@@ -179,98 +179,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   }
 }
 
-class _HeroBanner extends ConsumerWidget {
-  const _HeroBanner();
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final t = ref.watch(translationsProvider);
-    return Container(
-      margin: const EdgeInsets.all(16),
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [AppColors.primary, AppColors.primaryDark],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-            decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.2),
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: Text(
-              t.heroBadge,
-              style: const TextStyle(color: Colors.white, fontSize: 12),
-            ),
-          ),
-          const SizedBox(height: 12),
-          Text(
-            t.heroTitle,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 28,
-              fontWeight: FontWeight.w700,
-              height: 1.2,
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            t.heroSubtitle,
-            style: const TextStyle(
-              color: Colors.white70,
-              fontSize: 13,
-              height: 1.5,
-            ),
-          ),
-          const SizedBox(height: 16),
-          Row(
-            children: [
-              _StatChip(t.chipEncuestas),
-              const SizedBox(width: 8),
-              _StatChip(t.chipPatrimonio),
-              const SizedBox(width: 8),
-              _StatChip(t.chipAnalisis),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _StatChip extends StatelessWidget {
-  final String label;
-  const _StatChip(this.label);
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-      decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.15),
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: Colors.white.withOpacity(0.3)),
-      ),
-      child: Text(
-        label,
-        style: const TextStyle(
-          color: Colors.white,
-          fontSize: 10,
-          fontWeight: FontWeight.w500,
-        ),
-        textAlign: TextAlign.center,
-      ),
-    );
-  }
-}
-
 class _DebatesBanner extends StatelessWidget {
   const _DebatesBanner();
 
@@ -380,7 +288,7 @@ class _DebatesBanner extends StatelessWidget {
             ),
           ),
           SizedBox(
-            height: 116,
+            height: 130,
             child: ListView.separated(
               scrollDirection: Axis.horizontal,
               padding: const EdgeInsets.fromLTRB(20, 10, 20, 14),

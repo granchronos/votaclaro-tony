@@ -27,7 +27,7 @@ class _CompararScreenState extends ConsumerState<CompararScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(t.compararTitle),
-        actions: const [LanguageSelectorButton()],
+        actions: const [FontSizeAdjuster(), LanguageSelectorButton()],
       ),
       body: candidatosAsync.when(
         data: (candidatos) {
@@ -229,14 +229,10 @@ class _CompararScreenState extends ConsumerState<CompararScreen> {
       final patrimonioB = _calcPatrimonio(hvB);
 
       // Antecedentes
-      final sentPenA =
-          (hvA['lSentenciaPenal'] as List?)?.length ?? 0;
-      final sentPenB =
-          (hvB['lSentenciaPenal'] as List?)?.length ?? 0;
-      final sentOblA =
-          (hvA['lSentenciaObliga'] as List?)?.length ?? 0;
-      final sentOblB =
-          (hvB['lSentenciaObliga'] as List?)?.length ?? 0;
+      final sentPenA = (hvA['lSentenciaPenal'] as List?)?.length ?? 0;
+      final sentPenB = (hvB['lSentenciaPenal'] as List?)?.length ?? 0;
+      final sentOblA = (hvA['lSentenciaObliga'] as List?)?.length ?? 0;
+      final sentOblB = (hvB['lSentenciaObliga'] as List?)?.length ?? 0;
       final renunciasA = (hvA['lRenunciaOP'] as List?)?.length ?? 0;
       final renunciasB = (hvB['lRenunciaOP'] as List?)?.length ?? 0;
 
@@ -388,12 +384,10 @@ class _CompararScreenState extends ConsumerState<CompararScreen> {
         buf.writeln('');
         buf.writeln('⚖️ ANTECEDENTES');
         if (sentPenA > 0) {
-          buf.writeln(
-              '▸ $nombreCortoA: $sentPenA sentencia(s) penal(es)');
+          buf.writeln('▸ $nombreCortoA: $sentPenA sentencia(s) penal(es)');
         }
         if (sentPenB > 0) {
-          buf.writeln(
-              '▸ $nombreCortoB: $sentPenB sentencia(s) penal(es)');
+          buf.writeln('▸ $nombreCortoB: $sentPenB sentencia(s) penal(es)');
         }
       }
 
@@ -842,8 +836,7 @@ class _ResultadoComparacion extends StatelessWidget {
                             Text(
                               '$edadA años',
                               style: const TextStyle(
-                                  fontSize: 11,
-                                  color: AppColors.textSecondary),
+                                  fontSize: 11, color: AppColors.textSecondary),
                             ),
                         ],
                       ),
@@ -875,8 +868,7 @@ class _ResultadoComparacion extends StatelessWidget {
                             Text(
                               '$edadB años',
                               style: const TextStyle(
-                                  fontSize: 11,
-                                  color: AppColors.textSecondary),
+                                  fontSize: 11, color: AppColors.textSecondary),
                             ),
                         ],
                       ),
@@ -1464,7 +1456,12 @@ class _TransparenciaCardState extends State<_TransparenciaCard> {
       const Color(0xFFFFA726),
       const Color(0xFFE53935),
     ];
-    final icons = [Icons.help_outline, Icons.check_circle, Icons.warning, Icons.error];
+    final icons = [
+      Icons.help_outline,
+      Icons.check_circle,
+      Icons.warning,
+      Icons.error
+    ];
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
@@ -1501,10 +1498,10 @@ class _TransparenciaCardState extends State<_TransparenciaCard> {
 
   @override
   Widget build(BuildContext context) {
-    final riskA = _calcRisk(
-        widget.patrimonioA, widget.sentPenA, widget.sentOblA, widget.renunciasA);
-    final riskB = _calcRisk(
-        widget.patrimonioB, widget.sentPenB, widget.sentOblB, widget.renunciasB);
+    final riskA = _calcRisk(widget.patrimonioA, widget.sentPenA,
+        widget.sentOblA, widget.renunciasA);
+    final riskB = _calcRisk(widget.patrimonioB, widget.sentPenB,
+        widget.sentOblB, widget.renunciasB);
 
     return Card(
       margin: const EdgeInsets.only(bottom: 8),
@@ -1539,9 +1536,13 @@ class _TransparenciaCardState extends State<_TransparenciaCard> {
                   const SizedBox(height: 8),
                   Row(
                     children: [
-                      Expanded(child: _riskBadge(widget.nombreA, riskA, AppColors.primary)),
+                      Expanded(
+                          child: _riskBadge(
+                              widget.nombreA, riskA, AppColors.primary)),
                       const SizedBox(width: 8),
-                      Expanded(child: _riskBadge(widget.nombreB, riskB, AppColors.accent)),
+                      Expanded(
+                          child: _riskBadge(
+                              widget.nombreB, riskB, AppColors.accent)),
                     ],
                   ),
                 ],
@@ -1556,16 +1557,19 @@ class _TransparenciaCardState extends State<_TransparenciaCard> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Divider(),
-                  if (widget.patrimonioA.total > 0 || widget.patrimonioB.total > 0) ...[
+                  if (widget.patrimonioA.total > 0 ||
+                      widget.patrimonioB.total > 0) ...[
                     const Text('💰 Patrimonio declarado',
                         style: TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.w700,
                             color: AppColors.textSecondary)),
                     const SizedBox(height: 6),
-                    _patrimonioRow(widget.nombreA, widget.patrimonioA, AppColors.primary),
+                    _patrimonioRow(
+                        widget.nombreA, widget.patrimonioA, AppColors.primary),
                     const SizedBox(height: 4),
-                    _patrimonioRow(widget.nombreB, widget.patrimonioB, AppColors.accent),
+                    _patrimonioRow(
+                        widget.nombreB, widget.patrimonioB, AppColors.accent),
                     const SizedBox(height: 12),
                   ],
                   if (widget.sentPenA > 0 ||
@@ -1605,12 +1609,14 @@ class _TransparenciaCardState extends State<_TransparenciaCard> {
                     ),
                     child: const Row(
                       children: [
-                        Icon(Icons.info_outline, size: 14, color: Color(0xFFF57F17)),
+                        Icon(Icons.info_outline,
+                            size: 14, color: Color(0xFFF57F17)),
                         SizedBox(width: 6),
                         Expanded(
                           child: Text(
                             'Indicador basado exclusivamente en datos públicos del JNE. No constituye acusación.',
-                            style: TextStyle(fontSize: 10, color: Color(0xFFF57F17)),
+                            style: TextStyle(
+                                fontSize: 10, color: Color(0xFFF57F17)),
                           ),
                         ),
                       ],
